@@ -54,7 +54,7 @@ class _MyAppState extends State<MyApp> {
             leading: Icon(Icons.arrow_forward_ios), title: Text(list[i]),);
         }),
         bottomNavigationBar: BottomAppBar(
-          child: Text(''), color: Colors.red,)
+          child: Text('ddasfs'), color: Colors.red,)
     );
   }
 }
