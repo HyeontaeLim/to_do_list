@@ -54,7 +54,7 @@ class _MyAppState extends State<MyApp> {
             leading: Icon(Icons.arrow_forward_ios), title: Text(list[i]),);
         }),
         bottomNavigationBar: BottomAppBar(
-          child: Text('없음'), color: Colors.red,)
+          child: Text(''), color: Colors.red,)
     );
   }
 }
