@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 void main() {
   runApp(MaterialApp(home: MyApp()));
@@ -29,14 +31,16 @@ class _MyAppState extends State<MyApp> {
                       fontSize: 20),), title: TextFormField(controller: inputData)),
                   Row(mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      TextButton(onPressed: () {
-                        return setState(() {
-                          list.add(inputData.text);
+                      TextButton(onPressed: () async {
+                        var res = await http.get(Uri.parse(""));
+                        return setState((){
+                          var body = jsonDecode((res.body));
+                          list.add(body.toString());
                           inputData.clear();
                           Navigator.pop(context);
                         });
                       }, child: Text('추가')),
-                      TextButton(onPressed: () {
+                      TextButton(onPressed: () async{
                         Navigator.pop(context);
                       }, child: Text('취소')),
                     ],
