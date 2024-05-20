@@ -1,5 +1,9 @@
+import 'dart:html';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:table_calendar/table_calendar.dart';
 import 'dart:convert';
 
 void main() {
@@ -17,6 +21,7 @@ class _MyAppState extends State<MyApp> {
 
   var list = [];
   var inputData = TextEditingController();
+  var selectedDay = DateTime.now();
 
   @override
   void initState() {
@@ -42,8 +47,9 @@ class _MyAppState extends State<MyApp> {
                         var url = Uri.parse("http://localhost:8080/memos");
                           await http.post(url, headers: <String, String>{
                           'Content-Type': 'application/json; charset=UTF-8',
-                        }, body: jsonEncode(<String, String>{
-                          'memo': inputData.text}));
+                        }, body: jsonEncode({
+                          'memo': inputData.text,
+                          'dTime': DateTime.now().toIso8601String()}));
                           getMemoList();
                           inputData.clear();
                           Navigator.pop(context);
@@ -53,7 +59,14 @@ class _MyAppState extends State<MyApp> {
                         Navigator.pop(context);
                       }, child: Text('취소')),
                     ],
+                  ),
+                  TableCalendar(focusedDay: DateTime.now(), firstDay: DateTime(2024, 1, 1), lastDay: DateTime(2026,12,31),
+                    onDaySelected: (DateTime selectedDay, DateTime focusedDay) {setState(() {
+                      this.selectedDay = selectedDay;
+                      print(this.selectedDay);
+                    });},
                   )
+
                 ],)
             )
             );
@@ -76,6 +89,7 @@ class _MyAppState extends State<MyApp> {
      setState(() {
      var body = jsonDecode(res.body);
      list = body;
+     print(body);
    });
   }
 }
