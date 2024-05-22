@@ -66,7 +66,6 @@ class _MyAppState extends State<MyApp> {
                       print(this.selectedDay);
                     });},
                   )
-
                 ],)
             )
             );
@@ -76,8 +75,54 @@ class _MyAppState extends State<MyApp> {
             fontWeight: FontWeight.bold, fontStyle: FontStyle.italic)),
             backgroundColor: Color(0xBCDDF1FF)),
         body: ListView.builder(itemCount: list.length, itemBuilder: (c, i) {
-          return ListTile(
-            leading: Icon(Icons.arrow_forward_ios), title: Text(list[i]['memo']),);
+          return Column(
+            children: [
+              ListTile(leading: Icon(Icons.arrow_forward_ios), title: Text(list[i]['memo'])),
+              Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                TextButton(onPressed: () {
+                  showDialog(context: context, builder: (context) {
+                    return Dialog(child: Form(
+                        child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+                          ListTile(leading: Text('할 일', style: TextStyle(
+                              fontSize: 20),), title: TextFormField(controller: inputData)),
+                          Row(mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              TextButton(onPressed: () async {
+                                var url = Uri.parse("http://localhost:8080/memos/${list[i]["id"]}");
+                                await http.put(url, headers: <String, String>{
+                                  'Content-Type': 'application/json; charset=UTF-8',
+                                }, body: jsonEncode({
+                                  'memo': inputData.text,
+                                  'dTime': DateTime.now().toIso8601String()}));
+                                getMemoList();
+                                inputData.clear();
+                                Navigator.pop(context);
+                              }, child: Text('수정')),
+                              TextButton(onPressed: () async{
+                                Navigator.pop(context);
+                              }, child: Text('취소')),
+                            ],
+                          ),
+                          TableCalendar(focusedDay: DateTime.now(), firstDay: DateTime(2024, 1, 1), lastDay: DateTime(2026,12,31),
+                            onDaySelected: (DateTime selectedDay, DateTime focusedDay) {setState(() {
+                              this.selectedDay = selectedDay;
+                              print(this.selectedDay);
+                            });},
+                          )
+                        ],)
+                    )
+                    );
+                  });
+                }
+                    , child: Text('수정')),
+                TextButton(onPressed: () async{
+                  var url = Uri.parse("http://localhost:8080/memos/${list[i]['id']}");
+                  await http.delete(url);
+                  getMemoList();},
+                    child: Text('삭제'))
+              ],)
+              ,]
+          );
         }),
         bottomNavigationBar: BottomAppBar(
           child: Text('아직 없음'), color: Colors.red,)
