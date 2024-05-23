@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:table_calendar/table_calendar.dart';
 import 'dart:convert';
@@ -22,8 +23,11 @@ class _MyAppState extends State<MyApp> {
 
   var list = [];
   var inputData = TextEditingController();
+  var inputHour = TextEditingController();
+  var inputMinute = TextEditingController();
+  var inputSeconds = TextEditingController();
   DateTime selectedDay = DateTime.now();
-  String orderType = "idDsc";
+  String? _orderType = "dTimeDsc";
 
   @override
   void initState() {
@@ -44,7 +48,7 @@ class _MyAppState extends State<MyApp> {
         }),
         appBar: AppBar(title: Text('To-do list', style: TextStyle(
             fontWeight: FontWeight.bold, fontStyle: FontStyle.italic)),
-            actions: [DropdownButton(items: const[
+            actions: [DropdownButtonHideUnderline(child: DropdownButton(value: _orderType, icon: Icon(Icons.sort), iconSize: 35, items: const[
               DropdownMenuItem(
                   value: 'createdDsc',
                   child: Text('오래된 순')
@@ -61,10 +65,10 @@ class _MyAppState extends State<MyApp> {
                   value: 'dTimeAsc',
                   child: Text('먼 목표 순')
               ),
-        ], onChanged: (value) {
-              orderType = value!;
+            ], onChanged: (newValue) {
+              _orderType = newValue!;
               getMemoList();
-            })],
+            },)) ],
             backgroundColor: Color(0xBCDDF1FF)),
         body: ListView.builder(itemCount: list.length, itemBuilder: (c, i) {
           return Container(decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.black, width: 1))),
@@ -73,7 +77,12 @@ class _MyAppState extends State<MyApp> {
                 Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [Padding(
                     padding: const EdgeInsets.fromLTRB(20,0,0,0),
-                    child: Text(style: TextStyle(fontSize: 13,color: Colors.grey),"목표일: ${DateTime.parse(list[i]["dTime"]).year}년 ${DateTime.parse(list[i]["dTime"]).month}월 ${DateTime.parse(list[i]["dTime"]).day}일"),
+                    child: Text(style: TextStyle(fontSize: 13,color: Colors.grey),
+                        "목표일: ${DateTime.parse(list[i]["dTime"]).year}년 "
+                            "${DateTime.parse(list[i]["dTime"]).month}월 "
+                            "${DateTime.parse(list[i]["dTime"]).day}일 "
+                            "${DateTime.parse(list[i]["dTime"]).hour}시 "
+                            "${DateTime.parse(list[i]["dTime"]).minute}분"),
                   ),
                     Row(mainAxisAlignment: MainAxisAlignment.end, children: [
                       TextButton(onPressed: () {
@@ -123,7 +132,7 @@ class _MyAppState extends State<MyApp> {
                           },
                           body: jsonEncode({
                             'memo': inputData.text,
-                            'dTime': selectedDay.toIso8601String()
+                            'dTime': DateTime(selectedDay.year, selectedDay.month, selectedDay.day, int.parse(inputHour.text), int.parse(inputMinute.text)).toIso8601String()
                           }),
                         );
                         setState(() {
@@ -158,9 +167,15 @@ class _MyAppState extends State<MyApp> {
                     print(this.selectedDay);
                   },
                 ),
-              ],
-            ),
-          );
+                Row(mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(width:30, child: TextFormField(controller: inputHour, maxLength: 2)),
+                    Text('시'),
+                    SizedBox(width:30, child: TextFormField(controller: inputMinute, maxLength: 2)),
+                    Text('분'),
+                  ],
+                ),
+          ]));
         },
       ),
     );
@@ -191,7 +206,7 @@ class _MyAppState extends State<MyApp> {
                           },
                           body: jsonEncode({
                             'memo': inputData.text,
-                            'dTime': selectedDay.toIso8601String()
+                            'dTime': DateTime(selectedDay.year, selectedDay.month, selectedDay.day, int.parse(inputHour.text), int.parse(inputMinute.text)).toIso8601String()
                           }),
                         );
                         setState(() {
@@ -226,6 +241,14 @@ class _MyAppState extends State<MyApp> {
                     print(this.selectedDay);
                   },
                 ),
+                Row(mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(width:30, child: TextFormField(controller: inputHour, maxLength: 2)),
+                    Text('시'),
+                    SizedBox(width:30, child: TextFormField(controller: inputMinute, maxLength: 2)),
+                    Text('분'),
+                  ],
+                ),
               ],
             ),
           );
@@ -235,7 +258,7 @@ class _MyAppState extends State<MyApp> {
   }
 
    getMemoList () async {
-     var res = await http.get(Uri.http('localhost:8080', '/memos', {'orderType': orderType}));
+     var res = await http.get(Uri.http('localhost:8080', '/memos', {'orderType': _orderType}));
      setState(() {
      var body = jsonDecode(res.body);
       list = body;
