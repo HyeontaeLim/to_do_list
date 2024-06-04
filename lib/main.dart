@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'dart:convert';
 
@@ -36,12 +37,13 @@ class _MyAppState extends State<MyApp> {
     getMemoList();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         floatingActionButton: FloatingActionButton(
             child: Icon(Icons.add), onPressed: () {
+          inputHour = TextEditingController(text: DateTime.now().hour.toString().padLeft(2,'0'));
+          inputMinute = TextEditingController(text: DateTime.now().minute.toString()..padLeft(2,'0'));
           showDialog(context: context, builder: (context) {
             return buildingAddDialog(context);
           });
@@ -71,37 +73,45 @@ class _MyAppState extends State<MyApp> {
             },)) ],
             backgroundColor: Color(0xBCDDF1FF)),
         body: ListView.builder(itemCount: list.length, itemBuilder: (c, i) {
-          return Container(decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.black, width: 1))),
+          return Dismissible(
+              key: Key("${list[i]['id']}"),
+              direction: DismissDirection.endToStart, // 오른쪽에서 왼쪽으로 스와이프
+              onDismissed: (direction)
+                async{
+                  var url = Uri.parse("http://localhost:8080/memos/${list[i]['id']}");
+                  await http.delete(url);
+                  getMemoList();
+              },
+              child: Container(decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.black, width: 1))),
             child: Column(
-              children: [ListTile(title: Text(list[i]['memo'])),
-                Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [Padding(
-                    padding: const EdgeInsets.fromLTRB(20,0,0,0),
-                    child: Text(style: TextStyle(fontSize: 13,color: Colors.grey),
-                        "목표일: ${DateTime.parse(list[i]["dTime"]).year}년 "
-                            "${DateTime.parse(list[i]["dTime"]).month}월 "
-                            "${DateTime.parse(list[i]["dTime"]).day}일 "
-                            "${DateTime.parse(list[i]["dTime"]).hour}시 "
-                            "${DateTime.parse(list[i]["dTime"]).minute}분"),
-                  ),
-                    Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                      TextButton(onPressed: () {
-                        showDialog(context: context, builder: (context) {
-                          return buildingCorrectDialog(i, context);
-                        });
-                      }
-                          , child: Text('수정')),
-                      TextButton(onPressed: () async{
-                        var url = Uri.parse("http://localhost:8080/memos/${list[i]['id']}");
-                        await http.delete(url);
-                        getMemoList();},
-                          child: Text('삭제'))
-                    ],),
-                  ],
-                )
-                ,]
+                children: [ListTile(title: Text(list[i]['memo'])),
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [Padding(
+                      padding: const EdgeInsets.fromLTRB(20,0,0,0),
+                      child: Text(style: TextStyle(fontSize: 13,color: Colors.grey),
+                          "목표일: ${DateTime.parse(list[i]["dTime"]).year}년 "
+                              "${DateTime.parse(list[i]["dTime"]).month}월 "
+                              "${DateTime.parse(list[i]["dTime"]).day}일 "
+                              "${DateTime.parse(list[i]["dTime"]).hour}시 "
+                              "${DateTime.parse(list[i]["dTime"]).minute}분"),
+                    ),
+                      Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                        TextButton(onPressed: () {
+                          inputHour = TextEditingController(text: DateTime.parse(list[i]["dTime"]).hour.toString().padLeft(2,'0'));
+                          inputMinute = TextEditingController(text: DateTime.parse(list[i]["dTime"]).minute.toString()..padLeft(2,'0'));
+                          showDialog(context: context, builder: (context) {
+                            inputData = TextEditingController(text: "${list[i]['memo']}");
+                            return buildingCorrectDialog(i, context);
+                          });
+                        }
+                            , child: Text('수정')),
+                      ],),
+                    ],
+                  )
+                  ,]
             ),
-          );
+          ));
+
         }),
         bottomNavigationBar: BottomAppBar(
           child: Text('아직 없음'), color: Colors.red,)
