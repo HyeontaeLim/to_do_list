@@ -1,4 +1,4 @@
-import 'dart:html';
+//import 'dart:html';
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
@@ -8,6 +8,8 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'dart:convert';
+
+import 'memo.dart';
 
 void main() {
   runApp(MaterialApp(home: MyApp()));
@@ -28,6 +30,7 @@ class _MyAppState extends State<MyApp> {
   var inputMinute = TextEditingController();
   var inputSeconds = TextEditingController();
   DateTime selectedDay = DateTime.now();
+  DateTime today = DateTime.now();
   String? _orderType = "dTimeDsc";
 
   @override
@@ -74,33 +77,29 @@ class _MyAppState extends State<MyApp> {
             backgroundColor: Color(0xBCDDF1FF)),
         body: ListView.builder(itemCount: list.length, itemBuilder: (c, i) {
           return Dismissible(
-              key: Key("${list[i]['id']}"),
+              key: Key("${list[i].id}"),
               direction: DismissDirection.endToStart, // 오른쪽에서 왼쪽으로 스와이프
               onDismissed: (direction)
                 async{
-                  var url = Uri.parse("http://localhost:8080/memos/${list[i]['id']}");
+                  var url = Uri.http('10.0.2.2:8080', '/memos/${list[i].id}');
                   await http.delete(url);
                   getMemoList();
               },
               child: Container(decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.black, width: 1))),
             child: Column(
-                children: [ListTile(title: Text(list[i]['memo'])),
+                children: [ListTile(title: Text(list[i].memo)),
                   Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [Padding(
                       padding: const EdgeInsets.fromLTRB(20,0,0,0),
                       child: Text(style: TextStyle(fontSize: 13,color: Colors.grey),
-                          "목표일: ${DateTime.parse(list[i]["dTime"]).year}년 "
-                              "${DateTime.parse(list[i]["dTime"]).month}월 "
-                              "${DateTime.parse(list[i]["dTime"]).day}일 "
-                              "${DateTime.parse(list[i]["dTime"]).hour}시 "
-                              "${DateTime.parse(list[i]["dTime"]).minute}분"),
+                          "목표일: ${DateFormat('yyyy년 MM월 dd일 HH시 mm분').format(list[i].dTime)}"),
                     ),
                       Row(mainAxisAlignment: MainAxisAlignment.end, children: [
                         TextButton(onPressed: () {
-                          inputHour = TextEditingController(text: DateTime.parse(list[i]["dTime"]).hour.toString().padLeft(2,'0'));
-                          inputMinute = TextEditingController(text: DateTime.parse(list[i]["dTime"]).minute.toString()..padLeft(2,'0'));
+                          inputHour = TextEditingController(text: list[i].dTime.hour.toString().padLeft(2,'0'));
+                          inputMinute = TextEditingController(text: list[i].dTime.minute.toString()..padLeft(2,'0'));
                           showDialog(context: context, builder: (context) {
-                            inputData = TextEditingController(text: "${list[i]['memo']}");
+                            inputData = TextEditingController(text: list[i].memo);
                             return buildingCorrectDialog(i, context);
                           });
                         }
@@ -113,8 +112,6 @@ class _MyAppState extends State<MyApp> {
           ));
 
         }),
-        bottomNavigationBar: BottomAppBar(
-          child: Text('아직 없음'), color: Colors.red,)
     );
   }
 
@@ -127,14 +124,14 @@ class _MyAppState extends State<MyApp> {
               children: [
                 ListTile(
                   leading: Text('할 일', style: TextStyle(fontSize: 20)),
-                  title: TextFormField(controller: inputData),
+                  title: TextField(controller: inputData),
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     TextButton(
                       onPressed: () async {
-                        var url = Uri.parse("http://localhost:8080/memos");
+                        var url = Uri.http('10.0.2.2:8080','/memos');
                         await http.post(
                           url,
                           headers: <String, String>{
@@ -146,7 +143,7 @@ class _MyAppState extends State<MyApp> {
                           }),
                         );
                         setState(() {
-                          selectedDay = DateTime.now();
+                          selectedDay = today;
                           getMemoList();
                           inputData.clear();
                         });
@@ -156,32 +153,35 @@ class _MyAppState extends State<MyApp> {
                     ),
                     TextButton(
                       onPressed: () {
-                        selectedDay = DateTime.now();
+                        selectedDay = today;
                         Navigator.pop(context);
                       },
                       child: Text('취소'),
                     ),
                   ],
                 ),
-                TableCalendar(
-                  focusedDay: selectedDay,
-                  firstDay: DateTime(2024, 1, 1),
-                  lastDay: DateTime(2026, 12, 31),
-                  selectedDayPredicate: (day) {
-                    return isSameDay(selectedDay, day);
-                  },
-                  onDaySelected: (DateTime selectedDay, DateTime focusedDay) {
-                    setState(() {
-                      this.selectedDay = selectedDay;
-                    });
-                    print(this.selectedDay);
-                  },
+                Padding(
+                  padding: EdgeInsets.fromLTRB(15, 0, 15, 15),
+                  child: TableCalendar(
+                    focusedDay: selectedDay,
+                    firstDay: today.subtract(Duration(days: 365)),
+                    lastDay: today.add(Duration(days: 365*5)),
+                    selectedDayPredicate: (day) {
+                      return isSameDay(selectedDay, day);
+                    },
+                    onDaySelected: (DateTime selectedDay, DateTime focusedDay) {
+                      setState(() {
+                        this.selectedDay = selectedDay;
+                      });
+                      print(this.selectedDay);
+                    },
+                  ),
                 ),
                 Row(mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SizedBox(width:30, child: TextFormField(controller: inputHour, maxLength: 2)),
+                    SizedBox(width:30, child: TextField(controller: inputHour, maxLength: 2)),
                     Text('시'),
-                    SizedBox(width:30, child: TextFormField(controller: inputMinute, maxLength: 2)),
+                    SizedBox(width:30, child: TextField(controller: inputMinute, maxLength: 2)),
                     Text('분'),
                   ],
                 ),
@@ -201,14 +201,14 @@ class _MyAppState extends State<MyApp> {
               children: [
                 ListTile(
                   leading: Text('할 일', style: TextStyle(fontSize: 20)),
-                  title: TextFormField(controller: inputData),
+                  title: TextField(controller: inputData),
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     TextButton(
                       onPressed: () async {
-                        var url = Uri.parse("http://localhost:8080/memos/${list[i]["id"]}");
+                        var url = Uri.http('10.0.2.2:8080', '/memos/${list[i].id}');
                         await http.put(
                           url,
                           headers: <String, String>{
@@ -220,7 +220,7 @@ class _MyAppState extends State<MyApp> {
                           }),
                         );
                         setState(() {
-                          selectedDay = DateTime.now();
+                          selectedDay = today;
                           getMemoList();
                           inputData.clear();
                         });
@@ -230,7 +230,7 @@ class _MyAppState extends State<MyApp> {
                     ),
                     TextButton(
                       onPressed: () {
-                        selectedDay = DateTime.now();
+                        selectedDay = today;
                         Navigator.pop(context);
                       },
                       child: Text('취소'),
@@ -239,8 +239,8 @@ class _MyAppState extends State<MyApp> {
                 ),
                 TableCalendar(
                   focusedDay: selectedDay,
-                  firstDay: DateTime(2024, 1, 1),
-                  lastDay: DateTime(2026, 12, 31),
+                  firstDay: today.subtract(Duration(days: 365)),
+                  lastDay: today.add(Duration(days: 365*5)),
                   selectedDayPredicate: (day) {
                     return isSameDay(selectedDay, day);
                   },
@@ -253,9 +253,9 @@ class _MyAppState extends State<MyApp> {
                 ),
                 Row(mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SizedBox(width:30, child: TextFormField(controller: inputHour, maxLength: 2)),
+                    SizedBox(width:30, child: TextField(controller: inputHour, maxLength: 2)),
                     Text('시'),
-                    SizedBox(width:30, child: TextFormField(controller: inputMinute, maxLength: 2)),
+                    SizedBox(width:30, child: TextField(controller: inputMinute, maxLength: 2)),
                     Text('분'),
                   ],
                 ),
@@ -268,11 +268,14 @@ class _MyAppState extends State<MyApp> {
   }
 
    getMemoList () async {
-     var res = await http.get(Uri.http('localhost:8080', '/memos', {'orderType': _orderType}));
+     var res = await http.get(Uri.http('10.0.2.2:8080', '/memos', {'orderType': _orderType}));
      setState(() {
-     var body = jsonDecode(res.body);
-      list = body;
-     print(body);
+     var parsedBody = jsonDecode(res.body);
+     list.clear();
+     for (var memo in parsedBody) {
+       list.add(Memo.fromJson(memo));
+      }
+      print(parsedBody);
    });
   }
 }
