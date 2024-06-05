@@ -1,32 +1,44 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:table_calendar/table_calendar.dart';
 
 import 'memo.dart';
 
 class correctMemoForm extends StatefulWidget {
-  final TextEditingController inputData;
-  final TextEditingController inputHour;
-  final TextEditingController inputMinute;
-  final DateTime selectedDay;
   final List<Memo> list;
-  final VoidCallback getMemoList;
+  final Function getMemoList;
+  final Function(int) setWidgetIndex;
+  final int memoIndex;
+
 
   const correctMemoForm({
-    required this.inputData,
-    required this.inputHour,
-    required this.inputMinute,
-    required this.selectedDay,
     required this.list,
     required this.getMemoList,
+    required this.setWidgetIndex,
+    required this.memoIndex,
     super.key});
+
+
 
   @override
   State<correctMemoForm> createState() => _correctMemoFormState();
 }
 
 class _correctMemoFormState extends State<correctMemoForm> {
+  TextEditingController inputData = TextEditingController();
+  TextEditingController inputHour = TextEditingController();
+  TextEditingController inputMinute = TextEditingController();
+  DateTime selectedDay = DateTime.now();
+  DateTime today = DateTime.now();
+
   @override
   Widget build(BuildContext context) {
+    inputData = TextEditingController(text: widget.list[widget.memoIndex].memo);
+    inputHour = TextEditingController(text: widget.list[widget.memoIndex].dTime.hour.toString().padLeft(2,'0'));
+    inputMinute = TextEditingController(text: widget.list[widget.memoIndex].dTime.minute.toString().padLeft(2,'0'));
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -39,7 +51,7 @@ class _correctMemoFormState extends State<correctMemoForm> {
           children: [
             TextButton(
               onPressed: () async {
-                var url = Uri.http('10.0.2.2:8080', '/memos/${list[i].id}');
+                var url = Uri.http('10.0.2.2:8080', '/memos/${widget.list[widget.memoIndex].id}');
                 await http.put(
                   url,
                   headers: <String, String>{
@@ -50,19 +62,13 @@ class _correctMemoFormState extends State<correctMemoForm> {
                     'dTime': DateTime(selectedDay.year, selectedDay.month, selectedDay.day, int.parse(inputHour.text), int.parse(inputMinute.text)).toIso8601String()
                   }),
                 );
-                setState(() {
-                  selectedDay = today;
-                  getMemoList();
-                  inputData.clear();
-                });
+                widget.getMemoList();
+                widget.setWidgetIndex(0);
               },
               child: Text('수정'),
             ),
             TextButton(
-              onPressed: () {
-                selectedDay = today;
-                Navigator.pop(context);
-              },
+              onPressed: () {widget.setWidgetIndex(0);},
               child: Text('취소'),
             ),
           ],

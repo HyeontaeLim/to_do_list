@@ -6,21 +6,14 @@ import 'package:table_calendar/table_calendar.dart';
 import 'memo.dart';
 
 class addMemoForm extends StatefulWidget {
-  final TextEditingController inputData;
-  final TextEditingController inputHour;
-  final TextEditingController inputMinute;
-  final DateTime selectedDay;
   final List<Memo> list;
-  final VoidCallback getMemoList;
-
+  final Function getMemoList;
+  final Function(int) setWidgetIndex;
 
   const addMemoForm({
-    required this.inputData,
-    required this.inputHour,
-    required this.inputMinute,
-    required this.selectedDay,
     required this.list,
     required this.getMemoList,
+    required this.setWidgetIndex,
     super.key});
 
   @override
@@ -29,6 +22,10 @@ class addMemoForm extends StatefulWidget {
 
 class _addMemoFormState extends State<addMemoForm> {
 
+  TextEditingController inputData = TextEditingController();
+  TextEditingController inputHour = TextEditingController(text: DateTime.now().hour.toString().padLeft(2,'0'));
+  TextEditingController inputMinute = TextEditingController(text: DateTime.now().minute.toString().padLeft(2,'0'));
+  DateTime selectedDay = DateTime.now();
   DateTime today = DateTime.now();
 
   @override
@@ -38,37 +35,31 @@ class _addMemoFormState extends State<addMemoForm> {
       children: [
         ListTile(
           leading: Text('할 일', style: TextStyle(fontSize: 20)),
-          title: TextField(controller: widget.inputData),
+          title: TextField(controller: inputData),
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             TextButton(
               onPressed: () async {
-                var url = Uri.http('10.0.2.2:8080', '/memos/${widget.list[i].id}');
-                await http.put(
+                var url = Uri.http('10.0.2.2:8080','/memos');
+                await http.post(
                   url,
                   headers: <String, String>{
                     'Content-Type': 'application/json; charset=UTF-8',
                   },
                   body: jsonEncode({
                     'memo': inputData.text,
-                    'dTime': DateTime(widget.selectedDay.year, widget.selectedDay.month, widget.selectedDay.day, int.parse(widget.inputHour.text), int.parse(widget.inputMinute.text)).toIso8601String()
+                    'dTime': DateTime(selectedDay.year, selectedDay.month, selectedDay.day, int.parse(inputHour.text), int.parse(inputMinute.text)).toIso8601String()
                   }),
                 );
-                setState(() {
-                  selectedDay = today;
-                  getMemoList;
-                  widget.inputData.clear();
-                });
+                widget.getMemoList();
+                widget.setWidgetIndex(0);
               },
-              child: Text('수정'),
+              child: Text('추가'),
             ),
             TextButton(
-              onPressed: () {
-                selectedDay = today;
-                Navigator.pop(context);
-              },
+              onPressed: (){widget.setWidgetIndex(0);},
               child: Text('취소'),
             ),
           ],
@@ -89,9 +80,9 @@ class _addMemoFormState extends State<addMemoForm> {
         ),
         Row(mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(width:30, child: TextField(controller: widget.inputHour, maxLength: 2)),
+            SizedBox(width:30, child: TextField(controller: inputHour, maxLength: 2)),
             Text('시'),
-            SizedBox(width:30, child: TextField(controller: widget.inputMinute, maxLength: 2)),
+            SizedBox(width:30, child: TextField(controller: inputMinute, maxLength: 2)),
             Text('분'),
           ],
         ),
