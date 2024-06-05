@@ -30,14 +30,14 @@ class _correctMemoFormState extends State<correctMemoForm> {
   TextEditingController inputData = TextEditingController();
   TextEditingController inputHour = TextEditingController();
   TextEditingController inputMinute = TextEditingController();
-  DateTime selectedDay = DateTime.now();
-  DateTime today = DateTime.now();
+  DateTime _selectedDay = DateTime.now();
+  final DateTime _today = DateTime.now();
 
   @override
   void initState() {
     // TODO: implement initState
     setState(() {
-      this.selectedDay = widget.list[widget.memoIndex].dTime;
+      _selectedDay = widget.list[widget.memoIndex].dTime;
     });
   }
 
@@ -67,7 +67,7 @@ class _correctMemoFormState extends State<correctMemoForm> {
                   },
                   body: jsonEncode({
                     'memo': inputData.text,
-                    'dTime': DateTime(selectedDay.year, selectedDay.month, selectedDay.day, int.parse(inputHour.text), int.parse(inputMinute.text)).toIso8601String()
+                    'dTime': DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day, int.parse(inputHour.text), int.parse(inputMinute.text)).toIso8601String()
                   }),
                 );
                 widget.getMemoList();
@@ -82,15 +82,15 @@ class _correctMemoFormState extends State<correctMemoForm> {
           ],
         ),
         TableCalendar(
-          focusedDay: selectedDay,
-          firstDay: today.subtract(Duration(days: 365)),
-          lastDay: today.add(Duration(days: 365*5)),
+          focusedDay: _selectedDay,
+          firstDay: _today.subtract(Duration(days: 365)),
+          lastDay: _today.add(Duration(days: 365*5)),
           selectedDayPredicate: (day) {
-            return isSameDay(selectedDay, day);
+            return isSameDay(_selectedDay, day);
           },
           onDaySelected: (DateTime selectedDay, DateTime focusedDay) {
             setState(() {
-              this.selectedDay = selectedDay;
+              _selectedDay = selectedDay;
             });
           },
         ),

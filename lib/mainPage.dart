@@ -8,12 +8,14 @@ class mainPage extends StatefulWidget {
 
   final List<Memo> list;
   final Function getMemoList;
+  final Function(int) setWidgetIndex;
   final Function(int, int) setIndex;
 
 
   const mainPage({
     required this.list,
     required this.getMemoList,
+    required this.setWidgetIndex,
     required this.setIndex,
     super.key});
 
@@ -25,35 +27,39 @@ class _mainPageState extends State<mainPage> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(itemCount: widget.list.length, itemBuilder: (c, i) {
-      return Dismissible(
-          key: Key("${widget.list[i].id}"),
-          direction: DismissDirection.endToStart, // 오른쪽에서 왼쪽으로 스와이프
-          onDismissed: (direction)
-          async{
-            var url = Uri.http('10.0.2.2:8080', '/memos/${widget.list[i].id}');
-            await http.delete(url);
-            widget.getMemoList();
-          },
-          child: Container(decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.black, width: 1))),
-            child: Column(
-                children: [ListTile(title: Text(widget.list[i].memo)),
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [Padding(
-                      padding: const EdgeInsets.fromLTRB(20,0,0,0),
-                      child: Text(style: TextStyle(fontSize: 13,color: Colors.grey),
-                          "목표일: ${DateFormat('yyyy년 MM월 dd일 HH시 mm분').format(widget.list[i].dTime)}"),
-                    ),
-                      Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                        TextButton(onPressed: () {widget.setIndex(2, i);}
-                        , child: Text('수정')),
-                      ],),
-                    ],
-                  )
-                  ,]
-            ),
-          ));
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.add), onPressed: (){widget.setWidgetIndex(1);}),
+      body: ListView.builder(itemCount: widget.list.length, itemBuilder: (c, i) {
+        return Dismissible(
+            key: Key("${widget.list[i].id}"),
+            direction: DismissDirection.endToStart, // 오른쪽에서 왼쪽으로 스와이프
+            onDismissed: (direction)
+            async{
+              var url = Uri.http('10.0.2.2:8080', '/memos/${widget.list[i].id}');
+              await http.delete(url);
+              widget.getMemoList();
+            },
+            child: Container(decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.black, width: 1))),
+              child: Column(
+                  children: [ListTile(title: Text(widget.list[i].memo)),
+                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [Padding(
+                        padding: const EdgeInsets.fromLTRB(20,0,0,0),
+                        child: Text(style: TextStyle(fontSize: 13,color: Colors.grey),
+                            "목표일: ${DateFormat('yyyy년 MM월 dd일 HH시 mm분').format(widget.list[i].dTime)}"),
+                      ),
+                        Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                          TextButton(onPressed: () {widget.setIndex(2, i);}
+                          , child: Text('수정')),
+                        ],),
+                      ],
+                    )
+                    ,]
+              ),
+            ));
 
-    });
+      }),
+    );
   }
 }

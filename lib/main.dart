@@ -27,12 +27,11 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
 
-  List<Memo> list = [];
-  DateTime selectedDay = DateTime.now();
-  DateTime today = DateTime.now();
+  List<Memo> _list = [];
   String? _orderType = "dTimeDsc";
   int _widgetIndex = 0;
   int _memoIndex = 0;
+  final PageController _pageController = PageController(initialPage: 0, );
 
 
   int get widgetIndex => _widgetIndex;
@@ -41,12 +40,15 @@ class _MyAppState extends State<MyApp> {
     setState(() {
       _widgetIndex = value;
     });
+    _pageController.animateToPage(value, duration: Duration(milliseconds: 400), curve: Curves.ease);
   }
+
   setIndex(int value, int memoIndex) {
     setState(() {
       _widgetIndex = value;
       _memoIndex = memoIndex;
     });
+    _pageController.animateToPage(value, duration: Duration(milliseconds: 400), curve: Curves.ease);
   }
 
   @override
@@ -59,14 +61,12 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     List<Widget> widgets = [
-      mainPage(list: list, getMemoList: getMemoList, setIndex: (widgetIndex, memoIndex) => setIndex(widgetIndex, memoIndex)),
-      addMemoForm(list: list, getMemoList: getMemoList, setWidgetIndex: (index) => setWidgetIndex(index)),
-      correctMemoForm(list: list, getMemoList: getMemoList, setWidgetIndex: (index) => setWidgetIndex(index), memoIndex: _memoIndex)
+      mainPage(list: _list, getMemoList: getMemoList,setWidgetIndex: (widgetIndex) => setWidgetIndex(widgetIndex), setIndex: (widgetIndex, memoIndex) => setIndex(widgetIndex, memoIndex)),
+      addMemoForm(list: _list, getMemoList: getMemoList, setWidgetIndex: (index) => setWidgetIndex(index)),
+      correctMemoForm(list: _list, getMemoList: getMemoList, setWidgetIndex: (index) => setWidgetIndex(index), memoIndex: _memoIndex)
     ];
 
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.add), onPressed: (){setWidgetIndex(1);}),
       appBar: AppBar(title: Text('To-do list', style: TextStyle(
           fontWeight: FontWeight.bold, fontStyle: FontStyle.italic)),
           actions: [DropdownButtonHideUnderline(child: DropdownButton(value: _orderType, icon: Icon(Icons.sort), iconSize: 35, items: const[
@@ -91,9 +91,7 @@ class _MyAppState extends State<MyApp> {
             getMemoList();
           },)) ],
           backgroundColor: Color(0xBCDDF1FF)),
-      body: Center(
-        child: widgets[_widgetIndex],
-      ),
+      body: PageView(controller: _pageController, scrollDirection: Axis.vertical,children: widgets, ),
     );
   }
 
@@ -101,9 +99,9 @@ class _MyAppState extends State<MyApp> {
     var res = await http.get(Uri.http('10.0.2.2:8080', '/memos', {'orderType': _orderType}));
     setState(() {
       var parsedBody = jsonDecode(res.body);
-      list.clear();
+      _list.clear();
       for (var memo in parsedBody) {
-        list.add(Memo.fromJson(memo));
+        _list.add(Memo.fromJson(memo));
       }
       print(parsedBody);
     });
