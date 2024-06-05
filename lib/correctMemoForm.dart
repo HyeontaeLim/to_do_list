@@ -34,6 +34,14 @@ class _correctMemoFormState extends State<correctMemoForm> {
   DateTime today = DateTime.now();
 
   @override
+  void initState() {
+    // TODO: implement initState
+    setState(() {
+      this.selectedDay = widget.list[widget.memoIndex].dTime;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     inputData = TextEditingController(text: widget.list[widget.memoIndex].memo);
     inputHour = TextEditingController(text: widget.list[widget.memoIndex].dTime.hour.toString().padLeft(2,'0'));
