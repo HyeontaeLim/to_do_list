@@ -67,6 +67,7 @@ class _MyAppState extends State<MyApp> {
     ];
 
     return Scaffold(
+      floatingActionButton: _widgetIndex==0 ? FloatingActionButton(child: Icon(Icons.add), onPressed: (){setWidgetIndex(1);}):null,
       appBar: AppBar(title: Text('To-do list', style: TextStyle(
           fontWeight: FontWeight.bold, fontStyle: FontStyle.italic)),
           actions: [DropdownButtonHideUnderline(child: DropdownButton(value: _orderType, icon: Icon(Icons.sort), iconSize: 35, items: const[
@@ -91,7 +92,11 @@ class _MyAppState extends State<MyApp> {
             getMemoList();
           },)) ],
           backgroundColor: Color(0xBCDDF1FF)),
-      body: PageView(controller: _pageController, scrollDirection: Axis.vertical,children: widgets, ),
+      body: PageView(
+        controller: _pageController,
+        scrollDirection: Axis.vertical,
+        physics: NeverScrollableScrollPhysics(),
+        children: widgets, ),
     );
   }
 

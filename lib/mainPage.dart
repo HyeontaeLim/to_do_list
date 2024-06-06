@@ -27,10 +27,7 @@ class _mainPageState extends State<mainPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.add), onPressed: (){widget.setWidgetIndex(1);}),
-      body: ListView.builder(itemCount: widget.list.length, itemBuilder: (c, i) {
+      return ListView.builder(itemCount: widget.list.length, itemBuilder: (c, i) {
         return Dismissible(
             key: Key("${widget.list[i].id}"),
             direction: DismissDirection.endToStart, // 오른쪽에서 왼쪽으로 스와이프
@@ -40,7 +37,17 @@ class _mainPageState extends State<mainPage> {
               await http.delete(url);
               widget.getMemoList();
             },
-            child: Container(decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.black, width: 1))),
+            child: Container(
+              margin: EdgeInsets.all(5),
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.black),
+                  boxShadow: [BoxShadow(
+                      color: Colors.grey.withOpacity(0.3),
+                      spreadRadius: 2,
+                      blurRadius: 5
+                      ,offset: Offset(3,3))]),
               child: Column(
                   children: [ListTile(title: Text(widget.list[i].memo)),
                     Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -58,8 +65,7 @@ class _mainPageState extends State<mainPage> {
                     ,]
               ),
             ));
-
-      }),
-    );
+      
+      });
   }
 }

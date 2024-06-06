@@ -27,7 +27,7 @@ class _addMemoFormState extends State<addMemoForm> {
   TextEditingController inputData = TextEditingController();
   TextEditingController inputHour = TextEditingController(text: DateTime.now().hour.toString().padLeft(2,'0'));
   TextEditingController inputMinute = TextEditingController(text: DateTime.now().minute.toString().padLeft(2,'0'));
-  DateTime selectedDay = DateTime.now();
+  DateTime _selectedDay = DateTime.now();
   DateTime today = DateTime.now();
 
   @override
@@ -52,7 +52,7 @@ class _addMemoFormState extends State<addMemoForm> {
                   },
                   body: jsonEncode({
                     'memo': inputData.text,
-                    'dTime': DateTime(selectedDay.year, selectedDay.month, selectedDay.day, int.parse(inputHour.text), int.parse(inputMinute.text)).toIso8601String()
+                    'dTime': _selectedDay.toIso8601String()
                   }),
                 );
                 widget.getMemoList();
@@ -73,27 +73,42 @@ class _addMemoFormState extends State<addMemoForm> {
                 showDialog(
                 context: context,
                 builder: (BuildContext context) {
-                  return Dialog(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: TableCalendar(
-                      focusedDay: selectedDay,
-                      firstDay: today.subtract(Duration(days: 365)),
-                      lastDay: today.add(Duration(days: 365*5)),
-                      selectedDayPredicate: (day) {
-                        return isSameDay(selectedDay, day);
-                      },
-                      onDaySelected: (DateTime selectedDay, DateTime focusedDay) {
-                        setState(() {
-                          this.selectedDay = selectedDay;
-                        });
-                        print(this.selectedDay);
-                      },
-                    ),
+                  DateTime selectedDate = _selectedDay;
+                  return StatefulBuilder(
+                    builder: (context, setState){return Dialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: TableCalendar(
+                              focusedDay: selectedDate,
+                              firstDay: today.subtract(Duration(days: 365)),
+                              lastDay: today.add(Duration(days: 365*5)),
+                              selectedDayPredicate: (day) {
+                                return isSameDay(selectedDate, day);
+                              },
+                              onDaySelected: (DateTime selectedDay, DateTime focusedDay) {
+                                setState(() {
+                                  selectedDate = DateTime(selectedDay.year, selectedDay.month, selectedDay.day, _selectedDay.hour, _selectedDay.minute);
+                                });
+                              },),
+                          ),
+                          OutlinedButton(onPressed: () {
+                            Navigator.of(context).pop(selectedDate);}, child: Text('확인'))
+                        ],
+                      ),
+                    );},
                   );
-            });
-          }, child: Text(style:TextStyle(fontSize: 30, color: Colors.black, ), DateFormat('yyyy년 MM월 dd일').format(selectedDay))),
+            }).then((selectedDate) {
+              setState(() {
+                _selectedDay = selectedDate;
+              });
+              print(_selectedDay);
+                });
+          }, child: Text(style:TextStyle(fontSize: 30, color: Colors.black, ), DateFormat('yyyy년 MM월 dd일').format(_selectedDay))),
         ),
         Container(margin: EdgeInsets.fromLTRB(0, 10, 0, 10),
           child: ElevatedButton(
@@ -106,14 +121,24 @@ class _addMemoFormState extends State<addMemoForm> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child:         Row(mainAxisAlignment: MainAxisAlignment.center,
+                          child: Column(
                             children: [
-                              SizedBox(width:30, child: TextField(controller: inputHour, maxLength: 2)),
-                              Text('시'),
-                              SizedBox(width:30, child: TextField(controller: inputMinute, maxLength: 2)),
-                              Text('분'),],)
+                              Row(mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SizedBox(width:30, child: TextField(controller: inputHour, maxLength: 2)),
+                                  Text('시'),
+                                  SizedBox(width:30, child: TextField(controller: inputMinute, maxLength: 2)),
+                                  Text('분'),],),
+                              OutlinedButton(onPressed: () {
+                                setState(() {
+                                  _selectedDay = DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day, int.parse(inputHour.text), int.parse(inputMinute.text));
+                                });
+                                Navigator.pop(context);
+                                }, child: Text('확인'))
+                            ],
+                          )
                       );});},
-              child: Text(style:TextStyle(fontSize: 30, color: Colors.black, ), DateFormat('HH시 mm분').format(selectedDay))),
+              child: Text(style:TextStyle(fontSize: 30, color: Colors.black, ), DateFormat('HH시 mm분').format(_selectedDay))),
         ),
       ],
     );
