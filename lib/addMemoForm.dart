@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:ui';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import 'memo.dart';
@@ -64,27 +66,54 @@ class _addMemoFormState extends State<addMemoForm> {
             ),
           ],
         ),
-        TableCalendar(
-          focusedDay: selectedDay,
-          firstDay: today.subtract(Duration(days: 365)),
-          lastDay: today.add(Duration(days: 365*5)),
-          selectedDayPredicate: (day) {
-            return isSameDay(selectedDay, day);
-          },
-          onDaySelected: (DateTime selectedDay, DateTime focusedDay) {
-            setState(() {
-              this.selectedDay = selectedDay;
+        Container(margin: EdgeInsets.fromLTRB(0, 10, 0, 10),
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(side: BorderSide(color: Colors.black), backgroundColor: Colors.white, fixedSize: Size(300, 100), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+              onPressed: () {
+                showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return Dialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: TableCalendar(
+                      focusedDay: selectedDay,
+                      firstDay: today.subtract(Duration(days: 365)),
+                      lastDay: today.add(Duration(days: 365*5)),
+                      selectedDayPredicate: (day) {
+                        return isSameDay(selectedDay, day);
+                      },
+                      onDaySelected: (DateTime selectedDay, DateTime focusedDay) {
+                        setState(() {
+                          this.selectedDay = selectedDay;
+                        });
+                        print(this.selectedDay);
+                      },
+                    ),
+                  );
             });
-            print(this.selectedDay);
-          },
+          }, child: Text(style:TextStyle(fontSize: 30, color: Colors.black, ), DateFormat('yyyy년 MM월 dd일').format(selectedDay))),
         ),
-        Row(mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(width:30, child: TextField(controller: inputHour, maxLength: 2)),
-            Text('시'),
-            SizedBox(width:30, child: TextField(controller: inputMinute, maxLength: 2)),
-            Text('분'),
-          ],
+        Container(margin: EdgeInsets.fromLTRB(0, 10, 0, 10),
+          child: ElevatedButton(
+              style: ElevatedButton.styleFrom(side: BorderSide(color: Colors.black), backgroundColor: Colors.white, fixedSize: Size(300, 100), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+              onPressed: () {
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return Dialog(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child:         Row(mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(width:30, child: TextField(controller: inputHour, maxLength: 2)),
+                              Text('시'),
+                              SizedBox(width:30, child: TextField(controller: inputMinute, maxLength: 2)),
+                              Text('분'),],)
+                      );});},
+              child: Text(style:TextStyle(fontSize: 30, color: Colors.black, ), DateFormat('HH시 mm분').format(selectedDay))),
         ),
       ],
     );
