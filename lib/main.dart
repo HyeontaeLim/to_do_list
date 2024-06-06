@@ -68,9 +68,9 @@ class _MyAppState extends State<MyApp> {
 
     return Scaffold(
       floatingActionButton: _widgetIndex==0 ? FloatingActionButton(child: Icon(Icons.add), onPressed: (){setWidgetIndex(1);}):null,
-      appBar: AppBar(title: Text('To-do list', style: TextStyle(
+      appBar: AppBar(leading: _widgetIndex!=0 ? IconButton(onPressed: (){setWidgetIndex(0);},icon: Icon(Icons.arrow_back_ios_rounded),) :null, title: Text('To-do list', style: TextStyle(
           fontWeight: FontWeight.bold, fontStyle: FontStyle.italic)),
-          actions: [DropdownButtonHideUnderline(child: DropdownButton(value: _orderType, icon: Icon(Icons.sort), iconSize: 35, items: const[
+          actions: _widgetIndex==0 ? [DropdownButtonHideUnderline(child: DropdownButton(value: _orderType, icon: Icon(Icons.sort), iconSize: 35, items: const[
             DropdownMenuItem(
                 value: 'createdDsc',
                 child: Text('오래된 순')
@@ -90,7 +90,7 @@ class _MyAppState extends State<MyApp> {
           ], onChanged: (newValue) {
             _orderType = newValue!;
             getMemoList();
-          },)) ],
+          },)) ] : null,
           backgroundColor: Color(0xBCDDF1FF)),
       body: PageView(
         controller: _pageController,
@@ -101,7 +101,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   getMemoList() async {
-    var res = await http.get(Uri.http('10.0.2.2:8080', '/memos', {'orderType': _orderType}));
+    var res = await http.get(Uri.http('localhost:8080', '/memos', {'orderType': _orderType}));
     setState(() {
       var parsedBody = jsonDecode(res.body);
       _list.clear();

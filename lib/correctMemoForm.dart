@@ -39,14 +39,14 @@ class _correctMemoFormState extends State<correctMemoForm> {
     // TODO: implement initState
     setState(() {
       _selectedDay = widget.list[widget.memoIndex].dTime;
+      inputHour = TextEditingController(text: widget.list[widget.memoIndex].dTime.hour.toString().padLeft(2,'0'));
+      inputMinute = TextEditingController(text: widget.list[widget.memoIndex].dTime.minute.toString().padLeft(2,'0'));
     });
   }
 
   @override
   Widget build(BuildContext context) {
     inputData = TextEditingController(text: widget.list[widget.memoIndex].memo);
-    inputHour = TextEditingController(text: widget.list[widget.memoIndex].dTime.hour.toString().padLeft(2,'0'));
-    inputMinute = TextEditingController(text: widget.list[widget.memoIndex].dTime.minute.toString().padLeft(2,'0'));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -60,7 +60,7 @@ class _correctMemoFormState extends State<correctMemoForm> {
           children: [
             TextButton(
               onPressed: () async {
-                var url = Uri.http('10.0.2.2:8080', '/memos/${widget.list[widget.memoIndex].id}');
+                var url = Uri.http('localhost:8080', '/memos/${widget.list[widget.memoIndex].id}');
                 await http.put(
                   url,
                   headers: <String, String>{

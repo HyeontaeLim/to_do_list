@@ -33,7 +33,7 @@ class _mainPageState extends State<mainPage> {
             direction: DismissDirection.endToStart, // 오른쪽에서 왼쪽으로 스와이프
             onDismissed: (direction)
             async{
-              var url = Uri.http('10.0.2.2:8080', '/memos/${widget.list[i].id}');
+              var url = Uri.http('localhost:8080', '/memos/${widget.list[i].id}');
               await http.delete(url);
               widget.getMemoList();
             },

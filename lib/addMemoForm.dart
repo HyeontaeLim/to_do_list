@@ -44,7 +44,7 @@ class _addMemoFormState extends State<addMemoForm> {
           children: [
             TextButton(
               onPressed: () async {
-                var url = Uri.http('10.0.2.2:8080','/memos');
+                var url = Uri.http('localhost:8080','/memos');
                 await http.post(
                   url,
                   headers: <String, String>{
