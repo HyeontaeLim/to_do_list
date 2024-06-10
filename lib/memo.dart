@@ -1,20 +1,20 @@
 import 'package:to_do_list_project/addMemoForm.dart';
 
 class Memo{
-  final int id;
+  final int memoId;
   final String memo;
   final DateTime created;
   final DateTime dTime;
 
   Memo({
-    required this.id,
+    required this.memoId,
     required this.memo,
     required this.created,
     required this.dTime
   });
 
   factory Memo.fromJson(Map<String,dynamic> json) => Memo(
-    id: json["id"],
+    memoId: json["memoId"],
     memo: json["memo"],
     created: DateTime.parse(json["created"]),
     dTime: DateTime.parse(json["dTime"])

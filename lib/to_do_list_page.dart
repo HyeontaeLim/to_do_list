@@ -29,11 +29,11 @@ class _ToDoListPageState extends State<ToDoListPage> {
   Widget build(BuildContext context) {
       return ListView.builder(itemCount: widget.list.length, itemBuilder: (c, i) {
         return Dismissible(
-            key: Key("${widget.list[i].id}"),
+            key: Key("${widget.list[i].memoId}"),
             direction: DismissDirection.endToStart, // 오른쪽에서 왼쪽으로 스와이프
             onDismissed: (direction)
             async{
-              var url = Uri.http('localhost:8080', '/memos/${widget.list[i].id}');
+              var url = Uri.http('localhost:8080', '/memos/${widget.list[i].memoId}');
               await http.delete(url);
               widget.getMemoList();
             },

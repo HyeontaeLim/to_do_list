@@ -202,7 +202,7 @@ class _CorrectMemoFormState extends State<CorrectMemoForm> {
             TextButton(
               onPressed: () async {
                 var url = Uri.http('localhost:8080',
-                    '/memos/${widget.list[widget.memoIndex].id}');
+                    '/memos/${widget.list[widget.memoIndex].memoId}');
                 var response = await http.put(
                   url,
                   headers: <String, String>{
