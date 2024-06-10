@@ -5,11 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
-import 'package:table_calendar/table_calendar.dart';
 import 'package:to_do_list_project/addMemoForm.dart';
 import 'package:to_do_list_project/correctMemoForm.dart';
-import 'package:to_do_list_project/mainPage.dart';
+import 'package:to_do_list_project/loginPage.dart';
+import 'package:to_do_list_project/main_page.dart';
+import 'package:to_do_list_project/register_page.dart';
+import 'package:to_do_list_project/to_do_list_page.dart';
 import 'dart:convert';
 
 import 'memo.dart';
@@ -26,89 +27,28 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  int _pageIndex = 0;
+  final PageController _pageController = PageController(initialPage: 0);
 
-  List<Memo> _list = [];
-  String? _orderType = "dTimeDsc";
-  int _widgetIndex = 0;
-  int _memoIndex = 0;
-  final PageController _pageController = PageController(initialPage: 0, );
-
-
-  int get widgetIndex => _widgetIndex;
-
-  setWidgetIndex(int value) {
+  setPageIndex(int value) {
     setState(() {
-      _widgetIndex = value;
+      _pageIndex = value;
     });
     _pageController.animateToPage(value, duration: Duration(milliseconds: 400), curve: Curves.ease);
-  }
-
-  setIndex(int value, int memoIndex) {
-    setState(() {
-      _widgetIndex = value;
-      _memoIndex = memoIndex;
-    });
-    _pageController.animateToPage(value, duration: Duration(milliseconds: 400), curve: Curves.ease);
-  }
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    getMemoList();
   }
 
   @override
   Widget build(BuildContext context) {
     List<Widget> widgets = [
-      mainPage(list: _list, getMemoList: getMemoList,setWidgetIndex: (widgetIndex) => setWidgetIndex(widgetIndex), setIndex: (widgetIndex, memoIndex) => setIndex(widgetIndex, memoIndex)),
-      addMemoForm(list: _list, getMemoList: getMemoList, setWidgetIndex: (index) => setWidgetIndex(index)),
-      correctMemoForm(list: _list, getMemoList: getMemoList, setWidgetIndex: (index) => setWidgetIndex(index), memoIndex: _memoIndex)
+      LoginPage(setPageIndex: (_pageIndex) => setPageIndex(_pageIndex)),
+      MainPage(),
+      RegisterPage(setPageIndex: (_pageIndex) => setPageIndex(_pageIndex))
     ];
 
-    return Scaffold(
-      floatingActionButton: _widgetIndex==0 ? FloatingActionButton(child: Icon(Icons.add), onPressed: (){setWidgetIndex(1);}):null,
-      appBar: AppBar(leading: _widgetIndex!=0 ? IconButton(onPressed: (){setWidgetIndex(0);},icon: Icon(Icons.arrow_back_ios_rounded),) :null, title: Text('To-do list', style: TextStyle(
-          fontWeight: FontWeight.bold, fontStyle: FontStyle.italic)),
-          actions: _widgetIndex==0 ? [DropdownButtonHideUnderline(child: DropdownButton(value: _orderType, icon: Icon(Icons.sort), iconSize: 35, items: const[
-            DropdownMenuItem(
-                value: 'createdDsc',
-                child: Text('오래된 순')
-            ),
-            DropdownMenuItem(
-                value: 'createdAsc',
-                child: Text('최신순')
-            ),
-            DropdownMenuItem(
-                value: 'dTimeDsc',
-                child: Text('가까운 목표 순')
-            ),
-            DropdownMenuItem(
-                value: 'dTimeAsc',
-                child: Text('먼 목표 순')
-            ),
-          ], onChanged: (newValue) {
-            _orderType = newValue!;
-            getMemoList();
-          },)) ] : null,
-          backgroundColor: Color(0xBCDDF1FF)),
-      body: PageView(
-        controller: _pageController,
-        scrollDirection: Axis.vertical,
-        physics: NeverScrollableScrollPhysics(),
-        children: widgets, ),
-    );
-  }
-
-  getMemoList() async {
-    var res = await http.get(Uri.http('localhost:8080', '/memos', {'orderType': _orderType}));
-    setState(() {
-      var parsedBody = jsonDecode(res.body);
-      _list.clear();
-      for (var memo in parsedBody) {
-        _list.add(Memo.fromJson(memo));
-      }
-      print(parsedBody);
-    });
+    return PageView(
+      controller: _pageController,
+      scrollDirection: Axis.vertical,
+      physics: NeverScrollableScrollPhysics(),
+      children: widgets,);
   }
 }

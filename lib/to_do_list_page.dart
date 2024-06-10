@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 
 import 'memo.dart';
 
-class mainPage extends StatefulWidget {
+class ToDoListPage extends StatefulWidget {
 
   final List<Memo> list;
   final Function getMemoList;
@@ -12,7 +12,7 @@ class mainPage extends StatefulWidget {
   final Function(int, int) setIndex;
 
 
-  const mainPage({
+  const ToDoListPage({
     required this.list,
     required this.getMemoList,
     required this.setWidgetIndex,
@@ -20,10 +20,10 @@ class mainPage extends StatefulWidget {
     super.key});
 
   @override
-  State<mainPage> createState() => _mainPageState();
+  State<ToDoListPage> createState() => _ToDoListPageState();
 }
 
-class _mainPageState extends State<mainPage> {
+class _ToDoListPageState extends State<ToDoListPage> {
 
   @override
   Widget build(BuildContext context) {

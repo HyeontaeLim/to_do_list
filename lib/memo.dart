@@ -1,3 +1,5 @@
+import 'package:to_do_list_project/addMemoForm.dart';
+
 class Memo{
   final int id;
   final String memo;
@@ -19,3 +21,21 @@ class Memo{
   );
 }
 
+class AddUpdateMemo{
+  final String memo;
+  final DateTime dTime;
+
+  AddUpdateMemo({
+    required this.memo,
+    required this.dTime
+  });
+
+  factory AddUpdateMemo.fromJson(Map<String, dynamic> json) => AddUpdateMemo(
+      memo: json["memo"],
+      dTime: json["dTime"]);
+
+  Map<String, dynamic> toJson() => {
+    'memo': memo,
+    'dTime': dTime.toIso8601String()
+  };
+}
