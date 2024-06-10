@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:to_do_list_project/ValidationResult.dart';
 
 import 'memo.dart';
 
@@ -29,6 +30,7 @@ class _addMemoFormState extends State<addMemoForm> {
   TextEditingController inputMinute = TextEditingController(text: DateTime.now().minute.toString().padLeft(2,'0'));
   DateTime _selectedDay = DateTime.now();
   DateTime today = DateTime.now();
+  List<FieldErrorDetail> _errors = [];
 
   @override
   Widget build(BuildContext context) {
@@ -39,13 +41,21 @@ class _addMemoFormState extends State<addMemoForm> {
           leading: Text('할 일', style: TextStyle(fontSize: 20)),
           title: TextField(controller: inputData),
         ),
+        if(_errors.isNotEmpty)
+          for (FieldErrorDetail error in _errors )
+            if(error.field == "memo")
+              Align(alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
+                    child: Text(error.message, style: TextStyle(color: Colors.red)),
+                  )),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             TextButton(
               onPressed: () async {
                 var url = Uri.http('localhost:8080','/memos');
-                await http.post(
+                var response = await http.post(
                   url,
                   headers: <String, String>{
                     'Content-Type': 'application/json; charset=UTF-8',
@@ -55,8 +65,18 @@ class _addMemoFormState extends State<addMemoForm> {
                     'dTime': _selectedDay.toIso8601String()
                   }),
                 );
-                widget.getMemoList();
-                widget.setWidgetIndex(0);
+                if (response.statusCode == 200) {
+                  setState(() {
+                    _errors.clear();
+                  });
+                  widget.getMemoList();
+                  widget.setWidgetIndex(0);
+                }else if (response.statusCode == 400) {
+                  var validationResult = ValidationResult.fromJson(jsonDecode(response.body));
+                  setState(() {
+                    _errors = validationResult.errors;
+                  });
+                }
               },
               child: Text('추가'),
             ),

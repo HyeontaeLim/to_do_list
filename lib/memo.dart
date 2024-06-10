@@ -17,7 +17,5 @@ class Memo{
     created: DateTime.parse(json["created"]),
     dTime: DateTime.parse(json["dTime"])
   );
-
-
 }
 
