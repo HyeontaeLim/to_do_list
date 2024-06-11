@@ -68,13 +68,13 @@ enum Gender {
   FEMALE
 }
   extension GenderExtension on Gender? {
-  String get value {
+  String? get value {
     if(this == Gender.MALE) {
       return "MALE";
     }else if(this == Gender.FEMALE) {
       return "FEMALE";
     }
-    return "UNDEFINED";
+    return null;
   }
 
   static Gender fromValue(String value) {
