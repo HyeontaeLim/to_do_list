@@ -21,14 +21,14 @@ class _RegisterPageState extends State<RegisterPage> {
   TextEditingController _name = TextEditingController();
   TextEditingController _username = TextEditingController();
   TextEditingController _password = TextEditingController();
-  TextEditingController _passwordCheck = TextEditingController();
+  TextEditingController _passwordConfirmation = TextEditingController();
   TextEditingController _email = TextEditingController();
   List<FieldErrorDetail> _errors = [];
   Gender? _gender;
   String? _nameErr;
   String? _usernameErr;
   String? _passwordErr;
-  String? _passwordCheckErr;
+  String? _passwordConfirmationErr;
   String? _genderErr;
   String? _emailErr;
 
@@ -67,8 +67,8 @@ class _RegisterPageState extends State<RegisterPage> {
             hintText: '사용 할 비밀번호를 입력해주세요.',
           ),
           RegisterInputBox(
-            controller: _passwordCheck,
-            errorText: _passwordCheckErr,
+            controller: _passwordConfirmation,
+            errorText: _passwordConfirmationErr,
             obscureText: true,
             labelText: '비밀번호 확인',
             hintText: '비밀번호 확인',
@@ -151,6 +151,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         body: jsonEncode(AddUpdateMember(
                                 username: _username.text,
                                 password: _password.text,
+                                passwordConfirmation: _passwordConfirmation.text,
                                 name: _name.text,
                                 gender: _gender,
                                 email: _email.text)
@@ -162,7 +163,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         _usernameErr = null;
                         _passwordErr = null;
                         _emailErr = null;
-                        _passwordCheckErr = null;
+                        _passwordConfirmationErr = null;
                       });
                       widget.setPageIndex(0);
                     } else if (response.statusCode == 400) {
@@ -173,9 +174,9 @@ class _RegisterPageState extends State<RegisterPage> {
                         _nameErr = errValidate(_errors, "name");
                         _usernameErr = errValidate(_errors, "username");
                         _passwordErr = errValidate(_errors, "password");
+                        _passwordConfirmationErr = errValidate(_errors, "passwordConfirmation");
                         _emailErr = errValidate(_errors, "email");
                         _genderErr = errValidate(_errors, "gender");
-                        _passwordCheckErr = passwordCheck();
                       });
                     }
                   },
@@ -200,12 +201,6 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
-  String? passwordCheck() {
-    if (_password != _passwordCheck) {
-      return '비밀번호가 일치하지 않습니다.';
-    }
-    return null;
-  }
 }
 
 class RegisterInputBox extends StatelessWidget {

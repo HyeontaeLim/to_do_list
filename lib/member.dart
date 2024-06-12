@@ -36,6 +36,7 @@ class Member {
 class AddUpdateMember {
   final String username;
   final String password;
+  final String passwordConfirmation;
   final String name;
   final Gender? gender;
   final String email;
@@ -43,6 +44,7 @@ class AddUpdateMember {
   AddUpdateMember(
       {required this.username,
         required this.password,
+        required this.passwordConfirmation,
         required this.name,
         required this.gender,
         required this.email});
@@ -50,6 +52,7 @@ class AddUpdateMember {
   factory AddUpdateMember.fromJson(Map<String, dynamic> json) => AddUpdateMember(
       username: json["memberId"],
       password: json["password"],
+      passwordConfirmation: json["passwordConfirmation"],
       name: json["name"],
       gender: GenderExtension.fromValue(json["gender"]),
       email: json["email"]);
@@ -57,6 +60,7 @@ class AddUpdateMember {
   Map<String, dynamic> toJson() => {
     'username': username,
     'password': password,
+    'passwordConfirmation': passwordConfirmation,
     'name': name,
     'gender': gender.value,
     'email': email
