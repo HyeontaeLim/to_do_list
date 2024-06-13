@@ -1,17 +1,21 @@
-class ValidationResult{
-  final List<FieldErrorDetail> errors;
+class ValidationResult {
+  final List<FieldErrorDetail> fieldErrors;
+  final List<ObjectErrorDetail> globalErrors;
 
-  ValidationResult({
-    required this.errors
-});
+  ValidationResult({required this.fieldErrors, required this.globalErrors});
 
-  factory ValidationResult.fromJson(Map<String,dynamic> json) {
-    var errorsJson = json['errors'] as List;
-    List<FieldErrorDetail> errorsList = errorsJson.map((error) => FieldErrorDetail.fromJson(error)).toList();
+  factory ValidationResult.fromJson(Map<String, dynamic> json) {
+    var fieldErrorsJson = json['fieldErrors'] as List;
+    var globalErrorsJson = json['globalErrors'] as List;
+    List<FieldErrorDetail> fieldErrorsList = fieldErrorsJson
+        .map((error) => FieldErrorDetail.fromJson(error))
+        .toList();
+    List<ObjectErrorDetail> globalErrorsList = globalErrorsJson
+        .map((error) => ObjectErrorDetail.fromJson(error))
+        .toList();
 
     return ValidationResult(
-    errors: errorsList,
-  );
+        fieldErrors: fieldErrorsList, globalErrors: globalErrorsList);
   }
 }
 
@@ -36,6 +40,37 @@ class FieldErrorDetail {
       field: json['field'],
       codes: codesList,
       rejectedValue: json['rejectedValue'],
+      message: json['message'],
+    );
+  }
+
+  static String? errValidate(List<FieldErrorDetail> errors, String errField) {
+    if (errors.any((error) => error.field == errField)) {
+      return errors.firstWhere((error) => error.field == errField).message;
+    } else {
+      return null;
+    }
+  }
+}
+
+class ObjectErrorDetail {
+  final String objectName;
+  final List<String> codes;
+  final String message;
+
+  ObjectErrorDetail({
+    required this.objectName,
+    required this.codes,
+    required this.message,
+  });
+
+  factory ObjectErrorDetail.fromJson(Map<String, dynamic> json) {
+    var codesJson = json['codes'] as List;
+    List<String> codesList = List<String>.from(codesJson);
+
+    return ObjectErrorDetail(
+      objectName: json['objectName'],
+      codes: codesList,
       message: json['message'],
     );
   }

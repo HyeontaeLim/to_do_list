@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:ui';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -202,11 +201,9 @@ class _AddMemoFormState extends State<AddMemoForm> {
                   widget.getMemoList();
                   widget.setWidgetIndex(0);
                 } else if (response.statusCode == 400) {
-                  var validationResult =
-                      ValidationResult.fromJson(jsonDecode(response.body));
-                    _errors = validationResult.errors;
+                    _errors = ValidationResult.fromJson(jsonDecode(response.body)).fieldErrors;
                     setState(() {
-                      memoErrValidate(_errors);
+                      _memoErr = FieldErrorDetail.errValidate(_errors, "memo");
                     });
                 }
               },
@@ -222,13 +219,5 @@ class _AddMemoFormState extends State<AddMemoForm> {
         )
       ],
     );
-  }
-
-  void memoErrValidate(List<FieldErrorDetail> errors) {
-    if (errors.any((error) => error.field == "memo")) {
-      _memoErr = errors.firstWhere((error) => error.field == "memo").message;
-    } else {
-      _memoErr = null;
-    }
   }
 }

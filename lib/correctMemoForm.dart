@@ -226,7 +226,7 @@ class _CorrectMemoFormState extends State<CorrectMemoForm> {
                 } else if (response.statusCode == 400) {
                   var validationResult =
                       ValidationResult.fromJson(jsonDecode(response.body));
-                  _errors = validationResult.errors;
+                  _errors = validationResult.fieldErrors;
                   setState(() {
                     memoErrValidate(_errors);
                   });

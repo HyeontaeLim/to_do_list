@@ -170,13 +170,13 @@ class _RegisterPageState extends State<RegisterPage> {
                       var validationResult =
                           ValidationResult.fromJson(jsonDecode(response.body));
                       setState(() {
-                        _errors = validationResult.errors;
-                        _nameErr = errValidate(_errors, "name");
-                        _usernameErr = errValidate(_errors, "username");
-                        _passwordErr = errValidate(_errors, "password");
-                        _passwordConfirmationErr = errValidate(_errors, "passwordConfirmation");
-                        _emailErr = errValidate(_errors, "email");
-                        _genderErr = errValidate(_errors, "gender");
+                        _errors = validationResult.fieldErrors;
+                        _nameErr = FieldErrorDetail.errValidate(_errors, "name");
+                        _usernameErr = FieldErrorDetail.errValidate(_errors, "username");
+                        _passwordErr = FieldErrorDetail.errValidate(_errors, "password");
+                        _passwordConfirmationErr = FieldErrorDetail.errValidate(_errors, "passwordConfirmation");
+                        _emailErr = FieldErrorDetail.errValidate(_errors, "email");
+                        _genderErr = FieldErrorDetail.errValidate(_errors, "gender");
                       });
                     }
                   },
@@ -192,15 +192,6 @@ class _RegisterPageState extends State<RegisterPage> {
       ),
     );
   }
-
-  String? errValidate(List<FieldErrorDetail> errors, String errField) {
-    if (errors.any((error) => error.field == errField)) {
-      return errors.firstWhere((error) => error.field == errField).message;
-    } else {
-      return null;
-    }
-  }
-
 }
 
 class RegisterInputBox extends StatelessWidget {
