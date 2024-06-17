@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:to_do_list_project/ValidationResult.dart';
 
@@ -185,11 +186,14 @@ class _AddMemoFormState extends State<AddMemoForm> {
           children: [
             TextButton(
               onPressed: () async {
-                var url = Uri.http('localhost:8080', '/memos');
+                var store = await SharedPreferences.getInstance();
+                String? jSessionId = store.getString('JSESSIONID');
+                var url = Uri.http('10.0.2.2:8080', '/memos');
                 var response = await http.post(
                   url,
                   headers: <String, String>{
                     'Content-Type': 'application/json; charset=UTF-8',
+                    'Cookie': 'JSESSIONID=$jSessionId'
                   },
                   body: jsonEncode(AddUpdateMemo(memo: _inputData.text, dTime: _selectedDay).toJson()),
                 );
@@ -205,6 +209,12 @@ class _AddMemoFormState extends State<AddMemoForm> {
                     setState(() {
                       _memoErr = FieldErrorDetail.errValidate(_errors, "memo");
                     });
+                }else if (response.statusCode ==401) {
+                  await showDialog(context: context, builder: (BuildContext context) {
+                    return AlertDialog(content: Text('로그인이 만료 되었습니다.'),
+                        actions: [TextButton(onPressed: () {Navigator.pop(context);}, child: Text("확인", textAlign: TextAlign.right,))]
+                    );
+                  }).then((value){Navigator.pop(context);});
                 }
               },
               child: Text('추가'),

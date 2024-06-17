@@ -15,39 +15,12 @@ import 'dart:convert';
 import 'memo.dart';
 
 void main() {
-  runApp(MaterialApp(home: MyApp()));
-}
-
-class MyApp extends StatefulWidget {
-  MyApp({super.key});
-
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  int _pageIndex = 0;
-  final PageController _pageController = PageController(initialPage: 0);
-
-  setPageIndex(int value) {
-    setState(() {
-      _pageIndex = value;
-    });
-    _pageController.animateToPage(value, duration: Duration(milliseconds: 400), curve: Curves.ease);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    List<Widget> widgets = [
-      LoginPage(setPageIndex: (_pageIndex) => setPageIndex(_pageIndex)),
-      MainPage(),
-      RegisterPage(setPageIndex: (_pageIndex) => setPageIndex(_pageIndex))
-    ];
-
-    return PageView(
-      controller: _pageController,
-      scrollDirection: Axis.vertical,
-      physics: NeverScrollableScrollPhysics(),
-      children: widgets,);
-  }
+  runApp(MaterialApp(
+    initialRoute: "/login",
+    routes: {
+      "/login": (c) => LoginPage(),
+      "/main": (c) => MainPage(),
+      "/register": (c) => RegisterPage()
+    },
+  )); //home: MyApp()));
 }

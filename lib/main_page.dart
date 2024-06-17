@@ -2,21 +2,23 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'addMemoForm.dart';
 import 'correctMemoForm.dart';
 import 'to_do_list_page.dart';
 import 'memo.dart';
 
 class MainPage extends StatefulWidget {
-  MainPage({super.key});
+
+  MainPage({
+  super.key});
 
   @override
   State<MainPage> createState() => _MainPageState();
 }
 
 class _MainPageState extends State<MainPage> {
-
-  List<Memo> _list = [];
+  final List<Memo> _list = [];
   String? _orderType = "dTimeDsc";
   int _widgetIndex = 0;
   int _memoIndex = 0;
@@ -39,7 +41,6 @@ class _MainPageState extends State<MainPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     getMemoList();
   }
@@ -87,14 +88,27 @@ class _MainPageState extends State<MainPage> {
   }
 
   getMemoList() async {
-    var res = await http.get(Uri.http('localhost:8080', '/memos', {'orderType': _orderType}));
-    setState(() {
-      var parsedBody = jsonDecode(res.body);
-      _list.clear();
-      for (var memo in parsedBody) {
-        _list.add(Memo.fromJson(memo));
-      }
-      print(parsedBody);
+    var store = await SharedPreferences.getInstance();
+    String? jSessionId = store.getString('JSESSIONID');
+    var response = await http.get(Uri.http('10.0.2.2:8080', '/memos', {'orderType': _orderType}),
+    headers: {
+      'Cookie': 'JSESSIONID=$jSessionId'
     });
+    if(response.statusCode == 200) {
+      setState(() {
+        var parsedBody = jsonDecode(response.body);
+        _list.clear();
+        for (var memo in parsedBody) {
+          _list.add(Memo.fromJson(memo));
+        }
+        print(parsedBody);
+      });
+    } else if (response.statusCode == 401) {
+      await showDialog(context: context, builder: (BuildContext context) {
+        return AlertDialog(content: Text('로그인이 만료 되었습니다.'),
+            actions: [TextButton(onPressed: () {Navigator.pop(context);}, child: Text("확인", textAlign: TextAlign.right,))]
+        );
+      }).then((value){Navigator.pop(context);});
+    }
   }
 }

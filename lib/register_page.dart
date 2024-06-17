@@ -9,9 +9,8 @@ import 'package:to_do_list_project/ValidationResult.dart';
 import 'package:to_do_list_project/member.dart';
 
 class RegisterPage extends StatefulWidget {
-  final Function(int) setPageIndex;
 
-  const RegisterPage({required this.setPageIndex, super.key});
+  const RegisterPage({ super.key});
 
   @override
   State<RegisterPage> createState() => _RegisterPageState();
@@ -143,7 +142,7 @@ class _RegisterPageState extends State<RegisterPage> {
             children: [
               OutlinedButton(
                   onPressed: () async {
-                    var uri = Uri.http('localhost:8080', '/members');
+                    var uri = Uri.http('10.0.2.2:8080', '/members');
                     var response = await http.post(uri,
                         headers: <String, String>{
                           'Content-Type': 'application/json; charset=UTF-8',
@@ -165,7 +164,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         _emailErr = null;
                         _passwordConfirmationErr = null;
                       });
-                      widget.setPageIndex(0);
+                      Navigator.pushNamed(context, '/login');
                     } else if (response.statusCode == 400) {
                       var validationResult =
                           ValidationResult.fromJson(jsonDecode(response.body));
@@ -183,7 +182,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   child: Text("회원가입")),
               OutlinedButton(
                   onPressed: () {
-                    widget.setPageIndex(0);
+                    Navigator.pushNamed(context, '/login');
                   },
                   child: Text("뒤로가기"))
             ],

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import 'ValidationResult.dart';
@@ -36,7 +37,6 @@ class _CorrectMemoFormState extends State<CorrectMemoForm> {
 
   @override
   void initState() {
-    // TODO: implement initState
     _selectedDay = widget.list[widget.memoIndex].dTime;
     _inputHour = TextEditingController(
         text: widget.list[widget.memoIndex].dTime.hour
@@ -201,12 +201,15 @@ class _CorrectMemoFormState extends State<CorrectMemoForm> {
           children: [
             TextButton(
               onPressed: () async {
-                var url = Uri.http('localhost:8080',
+                var store = await SharedPreferences.getInstance();
+                String? jSessionId = store.getString('JSESSIONID');
+                var url = Uri.http('10.0.2.2:8080',
                     '/memos/${widget.list[widget.memoIndex].memoId}');
                 var response = await http.put(
                   url,
                   headers: <String, String>{
                     'Content-Type': 'application/json; charset=UTF-8',
+                    'Cookie': 'JSESSIONID=$jSessionId',
                   },
                   body: jsonEncode(
                       AddUpdateMemo(memo: _inputData.text, dTime: DateTime(
@@ -230,6 +233,12 @@ class _CorrectMemoFormState extends State<CorrectMemoForm> {
                   setState(() {
                     memoErrValidate(_errors);
                   });
+                }else if(response.statusCode==401) {
+                  await showDialog(context: context, builder: (BuildContext context) {
+                    return AlertDialog(content: Text('로그인이 만료 되었습니다.'),
+                        actions: [TextButton(onPressed: () {Navigator.pop(context);}, child: Text("확인", textAlign: TextAlign.right,))]
+                    );
+                  }).then((value){Navigator.pop(context);});
                 }
               },
               child: Text('수정'),

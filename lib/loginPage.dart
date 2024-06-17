@@ -4,14 +4,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/widgets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:to_do_list_project/login_form.dart';
 
 import 'ValidationResult.dart';
 
 class LoginPage extends StatefulWidget {
-  final Function(int) setPageIndex;
 
-  const LoginPage({required this.setPageIndex, super.key});
+  const LoginPage(
+      {super.key});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -36,7 +37,7 @@ class _LoginPageState extends State<LoginPage> {
             child: TextField(
               controller: usernameInput,
               decoration: InputDecoration(
-                errorText: _usernameErr,
+                  errorText: _usernameErr,
                   hintText: "아이디",
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10))),
@@ -48,7 +49,7 @@ class _LoginPageState extends State<LoginPage> {
               controller: passwordInput,
               obscureText: true,
               decoration: InputDecoration(
-                errorText: _passwordErr,
+                  errorText: _passwordErr,
                   hintText: "비밀번호",
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10))),
@@ -59,7 +60,10 @@ class _LoginPageState extends State<LoginPage> {
               alignment: Alignment.centerLeft,
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(42, 0, 0, 10),
-                child: Text(_globalErrors[0].message, style: TextStyle(fontSize: 12, color: Color(0xffC65B56)),),
+                child: Text(
+                  _globalErrors[0].message,
+                  style: TextStyle(fontSize: 12, color: Color(0xffC65B56)),
+                ),
               ),
             ),
           Row(
@@ -67,7 +71,7 @@ class _LoginPageState extends State<LoginPage> {
             children: [
               OutlinedButton(
                   onPressed: () async {
-                    var uri = Uri.http('localhost:8080', '/login');
+                    var uri = Uri.http('10.0.2.2:8080', '/login');
                     var response = await http.post(uri,
                         headers: <String, String>{
                           'Content-Type': 'application/json; charset=UTF-8',
@@ -82,20 +86,40 @@ class _LoginPageState extends State<LoginPage> {
                         _usernameErr = null;
                         _passwordErr = null;
                       });
-                      widget.setPageIndex(1);
+                      String? setCookie = response.headers['set-cookie'];
+                      if(setCookie != null) {
+                        print(setCookie);
+                        List<String> cookies = setCookie.split(';');
+                        for (String cookie in cookies) {
+                          if(cookie.trim().startsWith('JSESSIONID=')) {
+                            final store = await SharedPreferences.getInstance();
+                            await store.setString('JSESSIONID', cookie.split('=')[1]);
+                            print(store.getString('JSESSIONID'));
+                            break;
+                          }
+                        }
+                      }
+
+                     Navigator.pushNamed(context, '/main');
                     } else if (response.statusCode == 400) {
-                      _fieldErrors = ValidationResult.fromJson(jsonDecode(response.body)).fieldErrors;
-                      _globalErrors = ValidationResult.fromJson(jsonDecode(response.body)).globalErrors;
+                      _fieldErrors =
+                          ValidationResult.fromJson(jsonDecode(response.body))
+                              .fieldErrors;
+                      _globalErrors =
+                          ValidationResult.fromJson(jsonDecode(response.body))
+                              .globalErrors;
                       setState(() {
-                        _usernameErr = FieldErrorDetail.errValidate(_fieldErrors, "username");
-                        _passwordErr = FieldErrorDetail.errValidate(_fieldErrors, "password");
+                        _usernameErr = FieldErrorDetail.errValidate(
+                            _fieldErrors, "username");
+                        _passwordErr = FieldErrorDetail.errValidate(
+                            _fieldErrors, "password");
                       });
                     }
                   },
                   child: Text("로그인")),
               OutlinedButton(
                   onPressed: () {
-                    widget.setPageIndex(2);
+                    Navigator.pushNamed(context, '/register');
                   },
                   child: Text("회원가입"))
             ],

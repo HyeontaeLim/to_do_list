@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'memo.dart';
 
@@ -33,9 +34,27 @@ class _ToDoListPageState extends State<ToDoListPage> {
             direction: DismissDirection.endToStart, // 오른쪽에서 왼쪽으로 스와이프
             onDismissed: (direction)
             async{
-              var url = Uri.http('localhost:8080', '/memos/${widget.list[i].memoId}');
-              await http.delete(url);
-              widget.getMemoList();
+              var store = await SharedPreferences.getInstance();
+              String? jSessionId = store.getString('JSESSIONID');
+              var url = Uri.http('10.0.2.2:8080', '/memos/${widget.list[i].memoId}');
+              var response = await http.delete(url, headers: {
+                'Cookie': 'JSESSIONID=$jSessionId'
+              });
+              if(response.statusCode == 200) {
+                widget.getMemoList();
+              } else if (response.statusCode == 401) {
+                await showDialog(context: context, builder: (BuildContext context) {
+                  return AlertDialog(content: Text('로그인이 만료 되었습니다.'),
+                      actions: [TextButton(onPressed: () {Navigator.pop(context);}, child: Text("확인", textAlign: TextAlign.right,))]
+                  );
+                }).then((value){Navigator.pop(context);});
+              } else if(response.statusCode ==401) {
+                await showDialog(context: context, builder: (BuildContext context) {
+                  return AlertDialog(content: Text('로그인이 만료 되었습니다.'),
+                      actions: [TextButton(onPressed: () {Navigator.pop(context);}, child: Text("확인", textAlign: TextAlign.right,))]
+                  );
+                }).then((value){Navigator.pop(context);});
+              }
             },
             child: Container(
               margin: EdgeInsets.all(5),
