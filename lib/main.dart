@@ -15,12 +15,17 @@ import 'dart:convert';
 import 'memo.dart';
 
 void main() {
-  runApp(MaterialApp(
-    initialRoute: "/login",
-    routes: {
-      "/login": (c) => LoginPage(),
-      "/main": (c) => MainPage(),
-      "/register": (c) => RegisterPage()
+  runApp(GestureDetector(
+    onTap: () {
+      FocusManager.instance.primaryFocus?.unfocus();
     },
+    child: MaterialApp(
+      initialRoute: "/login",
+      routes: {
+        "/login": (c) => LoginPage(),
+        "/main": (c) => MainPage(),
+        "/register": (c) => RegisterPage()
+      },
+    ),
   )); //home: MyApp()));
 }

@@ -217,7 +217,7 @@ class _CorrectMemoFormState extends State<CorrectMemoForm> {
                           _selectedDay.month,
                           _selectedDay.day,
                           int.parse(_inputHour.text),
-                          int.parse(_inputMinute.text))).toJson()
+                          int.parse(_inputMinute.text)), isCompleted: widget.list[widget.memoIndex].isCompleted).toJson()
                   ),
                 );
                 if (response.statusCode == 200) {

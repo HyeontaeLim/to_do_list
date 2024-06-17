@@ -195,7 +195,7 @@ class _AddMemoFormState extends State<AddMemoForm> {
                     'Content-Type': 'application/json; charset=UTF-8',
                     'Cookie': 'JSESSIONID=$jSessionId'
                   },
-                  body: jsonEncode(AddUpdateMemo(memo: _inputData.text, dTime: _selectedDay).toJson()),
+                  body: jsonEncode(AddUpdateMemo(memo: _inputData.text, dTime: _selectedDay, isCompleted: false).toJson()),
                 );
                 if (response.statusCode == 200) {
                   setState(() {

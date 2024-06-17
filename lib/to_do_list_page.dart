@@ -28,7 +28,7 @@ class _ToDoListPageState extends State<ToDoListPage> {
 
   @override
   Widget build(BuildContext context) {
-      return ListView.builder(itemCount: widget.list.length, itemBuilder: (c, i) {
+      return widget.list.isEmpty ? Center(child: Text("등록된 할 일이 없습니다.")) : ListView.builder(itemCount: widget.list.length, itemBuilder: (c, i) {
         return Dismissible(
             key: Key("${widget.list[i].memoId}"),
             direction: DismissDirection.endToStart, // 오른쪽에서 왼쪽으로 스와이프
