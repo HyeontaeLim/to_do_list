@@ -138,57 +138,62 @@ class _MemoFormState extends State<MemoForm> {
           DateTime selectedDate = _selectedDay;
           return StatefulBuilder(
             builder: (context, setState) {
-              return Dialog(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: SizedBox(
-                  height: 490,
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: TableCalendar(
-                            focusedDay: selectedDate,
-                            firstDay: _today.subtract(Duration(days: 365)),
-                            lastDay: _today.add(Duration(days: 365 * 5)),
-                            selectedDayPredicate: (day) {
-                              return isSameDay(selectedDate, day);
-                            },
-                            onDaySelected:
-                                (DateTime selectedDay, DateTime focusedDay) {
-                              setState(() {
-                                selectedDate = DateTime(
-                                    selectedDay.year,
-                                    selectedDay.month,
-                                    selectedDay.day,
-                                    _selectedDay.hour,
-                                    _selectedDay.minute);
-                              });
-                            }),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(right: 16),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: Text('취소')),
-                            TextButton(
-                                onPressed: () =>
-                                    Navigator.of(context).pop(selectedDate),
-                                child: Text('확인')),
-                          ],
+                  return Center(
+                    child: SingleChildScrollView(
+                      child: Dialog(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
                         ),
-                      )
-                    ],
-                  ),
-                ),
+                        child: SizedBox(
+                          height: 490,
+                          child: Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: TableCalendar(
+                                    focusedDay: selectedDate,
+                                    firstDay: _today.subtract(Duration(days: 365)),
+                                    lastDay: _today.add(Duration(days: 365 * 5)),
+                                    selectedDayPredicate: (day) {
+                                      return isSameDay(selectedDate, day);
+                                    },
+                                    onDaySelected:
+                                        (DateTime selectedDay, DateTime focusedDay) {
+                                      setState(() {
+                                        selectedDate = DateTime(
+                                            selectedDay.year,
+                                            selectedDay.month,
+                                            selectedDay.day,
+                                            _selectedDay.hour,
+                                            _selectedDay.minute);
+                                      });
+                                    }),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(right: 16),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: Text('취소')),
+                                    TextButton(
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(selectedDate),
+                                        child: Text('확인')),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }
               );
             },
           );
-        });
     if (selectedDate != null) {
       setState(() {
         _selectedDay = selectedDate;
