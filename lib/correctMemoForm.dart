@@ -3,17 +3,12 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
-import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:table_calendar/table_calendar.dart';
 import 'package:to_do_list_project/memo_form.dart';
-
-import 'ValidationResult.dart';
 import 'memo.dart';
 
 class CorrectMemoForm extends StatefulWidget {
   final List<Memo> list;
-  final Function getMemoList;
+  final Function() getMemoList;
   final Function(int) setWidgetIndex;
   final int memoIndex;
 

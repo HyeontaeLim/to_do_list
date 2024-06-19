@@ -68,6 +68,7 @@ class _MainPageState extends State<MainPage> {
     ];
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       floatingActionButton: _widgetIndex == 0
           ? FloatingActionButton(
               child: Icon(Icons.add),

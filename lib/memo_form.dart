@@ -6,31 +6,30 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:to_do_list_project/ValidationResult.dart';
+import 'package:to_do_list_project/date_time-selector_btn.dart';
 
 import 'memo.dart';
 
 class MemoForm extends StatefulWidget {
-
   final List<Memo> list;
-  final Function() getMemoList;
-  final Function(int) setWidgetIndex;
+  final void Function() getMemoList;
+  final void Function(int) setWidgetIndex;
   final Future<Response> Function(String?, String, DateTime) httpRequest;
   final DateTime initSelectedDay;
   final TimeOfDay initSelectedTime;
   final TextEditingController initInputData;
   final String confirmText;
 
-
-  const MemoForm({
-    required this.list,
-    required this.getMemoList,
-    required this.setWidgetIndex,
-    required this.httpRequest,
-    required this.initSelectedDay,
-    required this.initSelectedTime,
-    required this.initInputData,
-    required this.confirmText,
-    super.key});
+  const MemoForm(
+      {required this.list,
+      required this.getMemoList,
+      required this.setWidgetIndex,
+      required this.httpRequest,
+      required this.initSelectedDay,
+      required this.initSelectedTime,
+      required this.initInputData,
+      required this.confirmText,
+      super.key});
 
   @override
   State<MemoForm> createState() => _MemoFormState();
@@ -64,131 +63,30 @@ class _MemoFormState extends State<MemoForm> {
                 hintText: "할 일을 입력 해 주세요",
                 errorText: _memoErr,
                 border:
-                OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
               ),
             )),
-        Container(
-          margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
-          width: double.infinity,
-          height: 100,
-          child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                  side: BorderSide(color: Colors.black),
-                  backgroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10))),
-              onPressed: () async{
-                DateTime? selectedDate = await showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      DateTime selectedDate = _selectedDay;
-                      return StatefulBuilder(
-                        builder: (context, setState) {
-                          return Dialog(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: SizedBox(
-                              height: 490,
-                              child: Column(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(12),
-                                    child: TableCalendar(
-                                        focusedDay: selectedDate,
-                                        firstDay: _today
-                                            .subtract(Duration(days: 365)),
-                                        lastDay:
-                                        _today.add(Duration(days: 365 * 5)),
-                                        selectedDayPredicate: (day) {
-                                          return isSameDay(selectedDate, day);
-                                        },
-                                        onDaySelected: (DateTime selectedDay,
-                                            DateTime focusedDay) {
-                                          setState(() {
-                                            selectedDate = DateTime(
-                                                selectedDay.year,
-                                                selectedDay.month,
-                                                selectedDay.day,
-                                                _selectedDay.hour,
-                                                _selectedDay.minute);
-                                          });
-                                        }),
-                                  ),
-                                  OutlinedButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop(selectedDate);
-                                      },
-                                      child: Text('확인'))
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      );
-                    });
-                if(selectedDate != null){
-                  setState(() {
-                    _selectedDay = selectedDate;
-                  });}
-              },
-              child: Text(
-                  style: TextStyle(
-                    fontSize: 30,
-                    color: Colors.black,
-                  ),
-                  DateFormat('yyyy년 MM월 dd일').format(_selectedDay))),
-        ),
-        Container(
-          margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
-          width: double.infinity,
-          height: 100,
-          child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                  side: BorderSide(color: Colors.black),
-                  backgroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10))),
-              onPressed: () async {
-                TimeOfDay? pickedTime = await showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return TimePickerDialog(
-                        initialTime: _selectedTime,
-                        cancelText: '취소',
-                        confirmText: '확인',
-                        hourLabelText: '시간',
-                        minuteLabelText: '분',
-                        helpText: '시간',
-                      );
-                    });
-                setState(() {
-                  if (pickedTime != null) {
-                    _selectedTime = pickedTime;
-                  }
-                  _selectedDay = DateTime(
-                      _selectedDay.year,
-                      _selectedDay.month,
-                      _selectedDay.day,
-                      _selectedTime.hour,
-                      _selectedTime.minute);
-                });
-              },
-              child: Text(
-                  style: TextStyle(
-                    fontSize: 30,
-                    color: Colors.black,
-                  ),
-                  DateFormat('HH시 mm분').format(_selectedDay))),
-        ),
+        DateTimeSelectorBtn(
+            dialog: showDateDialog,
+            text: DateFormat("yyyy년 MM월 dd일").format(_selectedDay)),
+        DateTimeSelectorBtn(
+            dialog: showTimeDialog,
+            text: DateFormat("HH시 mm분").format(_selectedDay)),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             TextButton(
+              onPressed: () {
+                widget.setWidgetIndex(0);
+              },
+              child: Text('취소'),
+            ),
+            TextButton(
               onPressed: () async {
                 var store = await SharedPreferences.getInstance();
                 String? jSessionId = store.getString('JSESSIONID');
-                var response = await widget.httpRequest(jSessionId, _inputData.text, _selectedDay);
+                var response = await widget.httpRequest(
+                    jSessionId, _inputData.text, _selectedDay);
                 if (response.statusCode == 200) {
                   setState(() {
                     _errors.clear();
@@ -227,15 +125,96 @@ class _MemoFormState extends State<MemoForm> {
               },
               child: Text(widget.confirmText),
             ),
-            TextButton(
-              onPressed: () {
-                widget.setWidgetIndex(0);
-              },
-              child: Text('취소'),
-            ),
           ],
         )
       ],
     );
+  }
+
+  void showDateDialog() async {
+    DateTime? selectedDate = await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          DateTime selectedDate = _selectedDay;
+          return StatefulBuilder(
+            builder: (context, setState) {
+              return Dialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: SizedBox(
+                  height: 490,
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: TableCalendar(
+                            focusedDay: selectedDate,
+                            firstDay: _today.subtract(Duration(days: 365)),
+                            lastDay: _today.add(Duration(days: 365 * 5)),
+                            selectedDayPredicate: (day) {
+                              return isSameDay(selectedDate, day);
+                            },
+                            onDaySelected:
+                                (DateTime selectedDay, DateTime focusedDay) {
+                              setState(() {
+                                selectedDate = DateTime(
+                                    selectedDay.year,
+                                    selectedDay.month,
+                                    selectedDay.day,
+                                    _selectedDay.hour,
+                                    _selectedDay.minute);
+                              });
+                            }),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: Text('취소')),
+                            TextButton(
+                                onPressed: () =>
+                                    Navigator.of(context).pop(selectedDate),
+                                child: Text('확인')),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        });
+    if (selectedDate != null) {
+      setState(() {
+        _selectedDay = selectedDate;
+      });
+    }
+  }
+
+  void showTimeDialog() async {
+    TimeOfDay? pickedTime = await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return TimePickerDialog(
+            initialTime: _selectedTime,
+            cancelText: '취소',
+            confirmText: '확인',
+            hourLabelText: '시간',
+            minuteLabelText: '분',
+            helpText: '시간',
+          );
+        });
+    setState(() {
+      if (pickedTime != null) {
+        _selectedTime = pickedTime;
+      }
+      _selectedDay = DateTime(_selectedDay.year, _selectedDay.month,
+          _selectedDay.day, _selectedTime.hour, _selectedTime.minute);
+    });
   }
 }

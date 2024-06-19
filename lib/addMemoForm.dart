@@ -2,17 +2,13 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
-import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:table_calendar/table_calendar.dart';
-import 'package:to_do_list_project/ValidationResult.dart';
 import 'package:to_do_list_project/memo_form.dart';
 
 import 'memo.dart';
 
 class AddMemoForm extends StatefulWidget {
   final List<Memo> list;
-  final Function getMemoList;
+  final Function() getMemoList;
   final Function(int) setWidgetIndex;
 
   const AddMemoForm(
@@ -40,7 +36,7 @@ class _AddMemoFormState extends State<AddMemoForm> {
     );
   }
 
-  Future<Response> postMemo(jSessionId, inputData, selectedDay) {
+  Future<Response> postMemo(String? jSessionId, String inputData, DateTime selectedDay) {
     return http.post(
       Uri.http('10.0.2.2:8080', '/memos'),
       headers: <String, String>{
