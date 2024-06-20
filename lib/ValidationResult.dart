@@ -46,7 +46,12 @@ class FieldErrorDetail {
 
   static String? errValidate(List<FieldErrorDetail> errors, String errField) {
     if (errors.any((error) => error.field == errField)) {
-      return errors.firstWhere((error) => error.field == errField).message;
+      if(errors.where((error) => error.field == errField).any((error) => error.codes.contains("NotBlank"))){
+        return errors.where((error) => error.field == errField).firstWhere((error) => error.codes.contains("NotBlank")).message;
+      }else{
+        return errors.firstWhere((error) => error.field == errField).message;
+      }
+
     } else {
       return null;
     }

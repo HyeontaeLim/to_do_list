@@ -9,8 +9,7 @@ import 'package:to_do_list_project/ValidationResult.dart';
 import 'package:to_do_list_project/member.dart';
 
 class RegisterPage extends StatefulWidget {
-
-  const RegisterPage({ super.key});
+  const RegisterPage({super.key});
 
   @override
   State<RegisterPage> createState() => _RegisterPageState();
@@ -36,7 +35,9 @@ class _RegisterPageState extends State<RegisterPage> {
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
-          constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height,),
+          constraints: BoxConstraints(
+            minHeight: MediaQuery.of(context).size.height,
+          ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -85,17 +86,22 @@ class _RegisterPageState extends State<RegisterPage> {
                 margin: EdgeInsets.fromLTRB(30, 0, 30, 8),
                 decoration: BoxDecoration(
                     border: Border.all(
-                        color:
-                            _genderErr == null ? Colors.black54 : Color(0xffC65B56),
+                        color: _genderErr == null
+                            ? Colors.black54
+                            : Color(0xffC65B56),
                         width: 1),
                     borderRadius: BorderRadius.circular(10)),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(8, 0, 30, 0),
+                      padding: const EdgeInsets.fromLTRB(8, 0, 25, 0),
                       child: Text('성별',
-                          style: TextStyle(color: _genderErr == null ? Colors.black54 : Color(0xffC65B56), fontSize: 17)),
+                          style: TextStyle(
+                              color: _genderErr == null
+                                  ? Colors.black54
+                                  : Color(0xffC65B56),
+                              fontSize: 17)),
                     ),
                     Expanded(
                       child: ListTile(
@@ -137,7 +143,8 @@ class _RegisterPageState extends State<RegisterPage> {
                       padding: const EdgeInsets.fromLTRB(40, 0, 0, 10),
                       child: Text(
                         _genderErr!,
-                        style: TextStyle(fontSize: 12, color: Color(0xffC65B56)),
+                        style:
+                            TextStyle(fontSize: 12, color: Color(0xffC65B56)),
                       ),
                     )),
               Row(
@@ -153,7 +160,8 @@ class _RegisterPageState extends State<RegisterPage> {
                             body: jsonEncode(AddUpdateMember(
                                     username: _username.text,
                                     password: _password.text,
-                                    passwordConfirmation: _passwordConfirmation.text,
+                                    passwordConfirmation:
+                                        _passwordConfirmation.text,
                                     name: _name.text,
                                     gender: _gender,
                                     email: _email.text)
@@ -169,16 +177,23 @@ class _RegisterPageState extends State<RegisterPage> {
                           });
                           Navigator.pushNamed(context, '/login');
                         } else if (response.statusCode == 400) {
-                          var validationResult =
-                              ValidationResult.fromJson(jsonDecode(response.body));
+                          var validationResult = ValidationResult.fromJson(
+                              jsonDecode(response.body));
                           setState(() {
                             _errors = validationResult.fieldErrors;
-                            _nameErr = FieldErrorDetail.errValidate(_errors, "name");
-                            _usernameErr = FieldErrorDetail.errValidate(_errors, "username");
-                            _passwordErr = FieldErrorDetail.errValidate(_errors, "password");
-                            _passwordConfirmationErr = FieldErrorDetail.errValidate(_errors, "passwordConfirmation");
-                            _emailErr = FieldErrorDetail.errValidate(_errors, "email");
-                            _genderErr = FieldErrorDetail.errValidate(_errors, "gender");
+                            _nameErr =
+                                FieldErrorDetail.errValidate(_errors, "name");
+                            _usernameErr = FieldErrorDetail.errValidate(
+                                _errors, "username");
+                            _passwordErr = FieldErrorDetail.errValidate(
+                                _errors, "password");
+                            _passwordConfirmationErr =
+                                FieldErrorDetail.errValidate(
+                                    _errors, "passwordConfirmation");
+                            _emailErr =
+                                FieldErrorDetail.errValidate(_errors, "email");
+                            _genderErr =
+                                FieldErrorDetail.errValidate(_errors, "gender");
                           });
                         }
                       },
@@ -221,6 +236,7 @@ class RegisterInputBox extends StatelessWidget {
         controller: controller,
         obscureText: obscureText,
         decoration: InputDecoration(
+            errorMaxLines: 3,
             labelText: labelText,
             errorText: errorText,
             hintText: hintText,
