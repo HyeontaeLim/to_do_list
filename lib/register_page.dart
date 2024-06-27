@@ -60,14 +60,14 @@ class _RegisterPageState extends State<RegisterPage> {
                 controller: _username,
                 errorText: _usernameErr,
                 labelText: '아이디',
-                hintText: '사용할 아이디를 입력해주세요,',
+                hintText: '영문, 숫자 포함 5~20자',
               ),
               RegisterInputBox(
                 controller: _password,
                 errorText: _passwordErr,
                 obscureText: true,
                 labelText: '비밀번호',
-                hintText: '사용 할 비밀번호를 입력해주세요.',
+                hintText: '영문, 숫자, 특수기호 포함 8~16자',
               ),
               RegisterInputBox(
                 controller: _passwordConfirmation,
@@ -152,7 +152,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 children: [
                   OutlinedButton(
                       onPressed: () async {
-                        var uri = Uri.http('10.0.2.2:8080', '/members');
+                        var uri = Uri.http('ec2-3-107-48-252.ap-southeast-2.compute.amazonaws.com:8080', '/members');
                         var response = await http.post(uri,
                             headers: <String, String>{
                               'Content-Type': 'application/json; charset=UTF-8',

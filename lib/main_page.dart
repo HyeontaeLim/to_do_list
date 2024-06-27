@@ -97,6 +97,11 @@ class _MainPageState extends State<MainPage> {
                                       Navigator.pop(context);
                                       Navigator.pushReplacementNamed(context, '/login');
                                       var store = await SharedPreferences.getInstance();
+                                      String? jSessionId = store.getString('JSESSIONID');
+                                      var url = Uri.http('ec2-3-107-48-252.ap-southeast-2.compute.amazonaws.com:8080',
+                                          '/logout');
+                                      await http.post(url,
+                                          headers: {'Cookie': 'JSESSIONID=$jSessionId'});
                                       store.remove('JSESSIONID');
                                     },
                                     child: Text(
@@ -141,7 +146,23 @@ class _MainPageState extends State<MainPage> {
                     ],
                     onChanged: (newValue) {
                       _orderType = newValue!;
-                      getMemoList();
+                      if(_orderType == 'createdDsc') {
+                        setState(() {
+                          _list.sort((a,b) => a.created.compareTo(b.created));
+                        });
+                      } else if(_orderType == 'createdAsc') {
+                        setState(() {
+                          _list.sort((a,b) => b.created.compareTo(a.created));
+                        });
+                      }else if(_orderType == 'dTimeDsc') {
+                        setState(() {
+                          _list.sort((a,b) => a.dTime.compareTo(b.dTime));
+                        });
+                      }else if(_orderType == 'dTimeAsc') {
+                        setState(() {
+                          _list.sort((a,b) => b.dTime.compareTo(a.dTime));
+                        });
+                      }
                     },
                   ))
                 ]
@@ -160,17 +181,15 @@ class _MainPageState extends State<MainPage> {
     var store = await SharedPreferences.getInstance();
     String? jSessionId = store.getString('JSESSIONID');
     var response = await http.get(
-        Uri.http('10.0.2.2:8080', '/memos', {'orderType': _orderType}),
+        Uri.http('ec2-3-107-48-252.ap-southeast-2.compute.amazonaws.com:8080', '/memos'),
         headers: {'Cookie': 'JSESSIONID=$jSessionId'});
     if (response.statusCode == 200) {
-      setState(() {
         var parsedBody = jsonDecode(response.body);
         _list.clear();
         for (var memo in parsedBody) {
           _list.add(Memo.fromJson(memo));
         }
         print(parsedBody);
-      });
     } else if (response.statusCode == 401) {
       await showDialog(
           context: context,
@@ -190,5 +209,24 @@ class _MainPageState extends State<MainPage> {
         store.remove('JSESSIONID');
       });
     }
+
+    if(_orderType == 'createdDsc') {
+      setState(() {
+        _list.sort((a,b) => a.created.compareTo(b.created));
+      });
+    } else if(_orderType == 'createdAsc') {
+      setState(() {
+        _list.sort((a,b) => b.created.compareTo(a.created));
+      });
+    }else if(_orderType == 'dTimeDsc') {
+      setState(() {
+        _list.sort((a,b) => a.dTime.compareTo(b.dTime));
+      });
+    }else if(_orderType == 'dTimeAsc') {
+      setState(() {
+        _list.sort((a,b) => b.dTime.compareTo(a.dTime));
+      });
+    }
+
   }
 }

@@ -12,6 +12,7 @@ import 'package:to_do_list_project/register_page.dart';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:to_do_list_project/to_do_list_page.dart';
 
 void main() {
   runApp(MyApp());

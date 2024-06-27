@@ -72,7 +72,7 @@ class _LoginPageState extends State<LoginPage> {
             children: [
               OutlinedButton(
                   onPressed: () async {
-                    var uri = Uri.http('10.0.2.2:8080', '/login');
+                    var uri = Uri.http('ec2-3-107-48-252.ap-southeast-2.compute.amazonaws.com:8080', '/login');
                     var response = await http.post(uri,
                         headers: <String, String>{
                           'Content-Type': 'application/json; charset=UTF-8',

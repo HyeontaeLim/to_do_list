@@ -38,7 +38,7 @@ class _AddMemoFormState extends State<AddMemoForm> {
 
   Future<Response> postMemo(String? jSessionId, String inputData, DateTime selectedDay) {
     return http.post(
-      Uri.http('10.0.2.2:8080', '/memos'),
+      Uri.http('ec2-3-107-48-252.ap-southeast-2.compute.amazonaws.com:8080', '/memos'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Cookie': 'JSESSIONID=$jSessionId'
