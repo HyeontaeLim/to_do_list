@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -81,7 +82,7 @@ class _LoginPageState extends State<LoginPage> {
                                 username: usernameInput.text,
                                 password: passwordInput.text)
                             .toJson()));
-                    if (response.statusCode == 200) {
+                    if (response.statusCode == HttpStatus.ok) {
                       _fieldErrors.clear();
                       setState(() {
                         _usernameErr = null;
@@ -102,7 +103,7 @@ class _LoginPageState extends State<LoginPage> {
                       }
 
                      Navigator.pushNamed(context, '/main');
-                    } else if (response.statusCode == 400) {
+                    } else if (response.statusCode == HttpStatus.badRequest) {
                       _fieldErrors =
                           ValidationResult.fromJson(jsonDecode(response.body))
                               .fieldErrors;

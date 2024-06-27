@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -183,14 +184,14 @@ class _MainPageState extends State<MainPage> {
     var response = await http.get(
         Uri.http('ec2-3-107-48-252.ap-southeast-2.compute.amazonaws.com:8080', '/memos'),
         headers: {'Cookie': 'JSESSIONID=$jSessionId'});
-    if (response.statusCode == 200) {
+    if (response.statusCode == HttpStatus.ok) {
         var parsedBody = jsonDecode(response.body);
         _list.clear();
         for (var memo in parsedBody) {
           _list.add(Memo.fromJson(memo));
         }
         print(parsedBody);
-    } else if (response.statusCode == 401) {
+    } else if (response.statusCode == HttpStatus.unauthorized) {
       await showDialog(
           context: context,
           builder: (BuildContext context) {

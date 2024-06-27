@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:ffi';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -166,7 +168,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                     gender: _gender,
                                     email: _email.text)
                                 .toJson()));
-                        if (response.statusCode == 200) {
+                        if (response.statusCode == HttpStatus.ok) {
                           setState(() {
                             _errors.clear();
                             _nameErr = null;
@@ -176,7 +178,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             _passwordConfirmationErr = null;
                           });
                           Navigator.pushNamed(context, '/login');
-                        } else if (response.statusCode == 400) {
+                        } else if (response.statusCode == HttpStatus.badRequest) {
                           var validationResult = ValidationResult.fromJson(
                               jsonDecode(response.body));
                           setState(() {

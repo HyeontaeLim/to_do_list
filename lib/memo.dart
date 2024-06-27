@@ -7,7 +7,7 @@ class Memo{
   final String memo;
   final DateTime created;
   final DateTime dTime;
-  final bool isCompleted;
+  bool isCompleted;
   final int memberId;
 
   Memo({

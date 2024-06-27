@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -42,9 +43,9 @@ class _ToDoListPageState extends State<ToDoListPage> {
               var response = await http.delete(url, headers: {
                 'Cookie': 'JSESSIONID=$jSessionId'
               });
-              if(response.statusCode == 200) {
+              if(response.statusCode == HttpStatus.ok) {
                 widget.getMemoList();
-              } else if (response.statusCode == 401) {
+              } else if (response.statusCode == HttpStatus.unauthorized) {
                 await showDialog(context: context, builder: (BuildContext context) {
                   return AlertDialog(content: Text('로그인이 만료 되었습니다.'),
                       actions: [TextButton(onPressed: () {Navigator.pop(context);}, child: Text("확인", textAlign: TextAlign.right,))]
@@ -63,6 +64,9 @@ class _ToDoListPageState extends State<ToDoListPage> {
               onDoubleTap: () async{
                 var store = await SharedPreferences.getInstance();
                 String? jSessionId = store.getString('JSESSIONID');
+                setState(() {
+                  widget.list[i].isCompleted = !widget.list[i].isCompleted;
+                });
                 var url = Uri.http('ec2-3-107-48-252.ap-southeast-2.compute.amazonaws.com:8080',
                     '/memos/${widget.list[i].memoId}');
                 var response = await http.put(
@@ -74,13 +78,13 @@ class _ToDoListPageState extends State<ToDoListPage> {
                   body: jsonEncode(AddUpdateMemo(
                       memo: widget.list[i].memo,
                       dTime: widget.list[i].dTime,
-                      isCompleted: !widget.list[i].isCompleted)
+                      isCompleted: widget.list[i].isCompleted)
                       .toJson()),
                 );
-                if (response.statusCode == 200) {
-                  widget.getMemoList();
+                if (response.statusCode == HttpStatus.ok) {
+                 return;
                 }
-                else if (response.statusCode == 401) {
+                else if (response.statusCode == HttpStatus.unauthorized) {
                   await showDialog(
                   context: context,
                   builder: (BuildContext context) {

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
@@ -87,7 +88,7 @@ class _MemoFormState extends State<MemoForm> {
                 String? jSessionId = store.getString('JSESSIONID');
                 var response = await widget.httpRequest(
                     jSessionId, _inputData.text, _selectedDay);
-                if (response.statusCode == 200) {
+                if (response.statusCode == HttpStatus.ok) {
                   setState(() {
                     _errors.clear();
                     _memoErr = null;
@@ -95,13 +96,13 @@ class _MemoFormState extends State<MemoForm> {
                   });
                   widget.getMemoList();
                   widget.setWidgetIndex(0);
-                } else if (response.statusCode == 400) {
+                } else if (response.statusCode == HttpStatus.badRequest) {
                   _errors = ValidationResult.fromJson(jsonDecode(response.body))
                       .fieldErrors;
                   setState(() {
                     _memoErr = FieldErrorDetail.errValidate(_errors, "memo");
                   });
-                } else if (response.statusCode == 401) {
+                } else if (response.statusCode == HttpStatus.unauthorized) {
                   await showDialog(
                       context: context,
                       builder: (BuildContext context) {
