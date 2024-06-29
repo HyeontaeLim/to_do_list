@@ -99,7 +99,7 @@ class _MainPageState extends State<MainPage> {
                                       Navigator.pushReplacementNamed(context, '/login');
                                       var store = await SharedPreferences.getInstance();
                                       String? jSessionId = store.getString('JSESSIONID');
-                                      var url = Uri.http('ec2-3-107-48-252.ap-southeast-2.compute.amazonaws.com:8080',
+                                      var url = Uri.http('ec2-43-203-230-110.ap-northeast-2.compute.amazonaws.com:8080',
                                           '/logout');
                                       await http.post(url,
                                           headers: {'Cookie': 'JSESSIONID=$jSessionId'});
@@ -182,7 +182,7 @@ class _MainPageState extends State<MainPage> {
     var store = await SharedPreferences.getInstance();
     String? jSessionId = store.getString('JSESSIONID');
     var response = await http.get(
-        Uri.http('ec2-3-107-48-252.ap-southeast-2.compute.amazonaws.com:8080', '/memos'),
+        Uri.http('ec2-43-203-230-110.ap-northeast-2.compute.amazonaws.com:8080', '/memos'),
         headers: {'Cookie': 'JSESSIONID=$jSessionId'});
     if (response.statusCode == HttpStatus.ok) {
         var parsedBody = jsonDecode(response.body);

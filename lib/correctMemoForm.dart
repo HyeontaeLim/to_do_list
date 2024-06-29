@@ -41,7 +41,7 @@ class _CorrectMemoFormState extends State<CorrectMemoForm> {
   Future<Response> putMemo(jSessionId, inputData, selectedDay) {
     return http.put(
       Uri.http(
-          'ec2-3-107-48-252.ap-southeast-2.compute.amazonaws.com:8080', '/memos/${widget.list[widget.memoIndex].memoId}'),
+          'ec2-43-203-230-110.ap-northeast-2.compute.amazonaws.com:8080', '/memos/${widget.list[widget.memoIndex].memoId}'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
         'Cookie': 'JSESSIONID=$jSessionId'

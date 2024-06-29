@@ -39,7 +39,7 @@ class _ToDoListPageState extends State<ToDoListPage> {
             async{
               var store = await SharedPreferences.getInstance();
               String? jSessionId = store.getString('JSESSIONID');
-              var url = Uri.http('ec2-3-107-48-252.ap-southeast-2.compute.amazonaws.com:8080', '/memos/${widget.list[i].memoId}');
+              var url = Uri.http('ec2-43-203-230-110.ap-northeast-2.compute.amazonaws.com:8080', '/memos/${widget.list[i].memoId}');
               var response = await http.delete(url, headers: {
                 'Cookie': 'JSESSIONID=$jSessionId'
               });
@@ -67,7 +67,7 @@ class _ToDoListPageState extends State<ToDoListPage> {
                 setState(() {
                   widget.list[i].isCompleted = !widget.list[i].isCompleted;
                 });
-                var url = Uri.http('ec2-3-107-48-252.ap-southeast-2.compute.amazonaws.com:8080',
+                var url = Uri.http('ec2-43-203-230-110.ap-northeast-2.compute.amazonaws.com:8080',
                     '/memos/${widget.list[i].memoId}');
                 var response = await http.put(
                   url,
